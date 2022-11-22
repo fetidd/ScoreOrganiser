@@ -2,7 +2,7 @@ type Student = {
     id: string,
     first_names: string,
     last_name: string,
-    date_of_birth: Date,
+    date_of_birth: string,
     scores: Score[]
 }
 

@@ -3,21 +3,24 @@ import "./StudentList.css"
 import { AddCircleRounded, EditRounded, DeleteRounded, RefreshRounded } from "@mui/icons-material";
 import { IconButton, List, ListItemButton, ListItemText, Paper } from "@mui/material";
 import { useState } from "react";
-import {AddStudentDialog, DeleteStudentDialog} from "../components";
+import {AddStudentDialog, DeleteStudentDialog, EditStudentDialog} from "../components";
 import { invoke } from "@tauri-apps/api";
 
 export function StudentList(p: Props) {
   const [editMode, setEditMode] = useState(false)
-  const [addStudentDialogIsOpen, setAddStudentDialogIsOpen] = useState(false)
   const [studentToDelete, setStudentToDelete] = useState(null as Student|null)
+  const [studentToEdit, setStudentToEdit] = useState(null as Student|null)
+  const [addStudentDialogIsOpen, setAddStudentDialogIsOpen] = useState(false)
   const [deleteStudentDialogIsOpen, setDeleteStudentDialogIsOpen] = useState(false)
+  const [editStudentDialogIsOpen, setEditStudentDialogIsOpen] = useState(false)
 
   function showAddStudentDialog() {
     setAddStudentDialogIsOpen(true)
   }
 
   function showEditStudentDialog(student: Student) {
-    console.log("edit")
+    setStudentToEdit(student);
+    setEditStudentDialogIsOpen(true)
   }
 
   function showDeleteStudentDialog(student: Student) {
@@ -84,6 +87,12 @@ export function StudentList(p: Props) {
       setIsOpen={setDeleteStudentDialogIsOpen}
       refreshStudents={p.refreshStudents}
       studentToDelete={studentToDelete}
+    />
+    <EditStudentDialog 
+      isOpen={editStudentDialogIsOpen}
+      setIsOpen={setEditStudentDialogIsOpen}
+      refreshStudents={p.refreshStudents}
+      studentToEdit={studentToEdit}
     />
     </>
   );

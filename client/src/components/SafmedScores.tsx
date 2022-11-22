@@ -9,7 +9,7 @@ export default function SafmedScores(p: ScoreProps) {
     return (
         <Box>
             <Box>
-                <Box className="score-chart">{"p"}</Box>
+                <Box className="score-chart">{"score chart for safmeds"}</Box>
             </Box>
             <Box sx={{padding: "10px"}}>
                 <TextField sx={fieldStyle} id="correct" type="number" label="Correct" variant="outlined" />
