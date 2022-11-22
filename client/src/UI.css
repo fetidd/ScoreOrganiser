@@ -1,0 +1,19 @@
+.UI {
+    display: flex;
+    box-sizing: border-box;
+    height: 98vh;
+    min-width: 1000px;
+    min-height: 98vh;
+    max-height: 98vh;
+}
+
+.pane-header {
+    margin: 0;
+    flex-grow: 1;
+}
+
+.Dialog {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+}

@@ -1,0 +1,12 @@
+.StudentList {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    padding: 5px;
+    margin: 5px;
+}
+
+.StudentList #menu {
+    display: flex;
+    justify-content: end;
+}
