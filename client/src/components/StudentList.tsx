@@ -3,12 +3,14 @@ import "./StudentList.css"
 import { AddCircleRounded, EditRounded, DeleteRounded, RefreshRounded } from "@mui/icons-material";
 import { IconButton, List, ListItemButton, ListItemText, Paper } from "@mui/material";
 import { useState } from "react";
-import {AddStudentDialog} from "../components";
+import {AddStudentDialog, DeleteStudentDialog} from "../components";
 import { invoke } from "@tauri-apps/api";
 
 export function StudentList(p: Props) {
   const [editMode, setEditMode] = useState(false)
   const [addStudentDialogIsOpen, setAddStudentDialogIsOpen] = useState(false)
+  const [studentToDelete, setStudentToDelete] = useState(null as Student|null)
+  const [deleteStudentDialogIsOpen, setDeleteStudentDialogIsOpen] = useState(false)
 
   function showAddStudentDialog() {
     setAddStudentDialogIsOpen(true)
@@ -19,22 +21,12 @@ export function StudentList(p: Props) {
   }
 
   function showDeleteStudentDialog(student: Student) {
-    deleteStudent(student.id);
+    setStudentToDelete(student);
+    setDeleteStudentDialogIsOpen(true)
   }
 
   function refreshStudents() {
     p.refreshStudents();
-  }
-
-  function deleteStudent(studentId: string) {
-    console.debug(`deleting ${studentId}`);
-    invoke("delete_student", {id: studentId})
-      .then(res => {
-        refreshStudents();
-      })
-      .catch(err => {
-        console.error(`failed to delete student ${studentId}: ${err}`)
-      });
   }
 
   let rows = p.students.map((st: Student) => {
@@ -87,6 +79,12 @@ export function StudentList(p: Props) {
       selectStudent={p.selectStudent}
       refreshStudents={p.refreshStudents}
     />
+    <DeleteStudentDialog 
+      isOpen={deleteStudentDialogIsOpen}
+      setIsOpen={setDeleteStudentDialogIsOpen}
+      refreshStudents={p.refreshStudents}
+      studentToDelete={studentToDelete}
+    />
     </>
   );
 }
@@ -97,5 +95,3 @@ export type Props = {
     selectedStudent: Student | null // currently selected student
     refreshStudents: Function
 }
-
-

@@ -19,7 +19,7 @@ export default function UI() {
     });
   }
   
-  let [selectedStudent, setSelectedStudent] = useState();
+  let [selectedStudent, setSelectedStudent] = useState(null as Student|null);
 
   function selectStudent(id: string) {
     let found: Student[] = students.filter((st: Student) => st.id === id);
@@ -27,6 +27,8 @@ export default function UI() {
       setSelectedStudent(found[0]);
     } else setSelectedStudent(students[0]);
   }
+
+  useEffect(refreshStudents, []);
 
   return (
     <div className="UI">

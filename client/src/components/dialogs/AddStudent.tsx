@@ -23,8 +23,8 @@ export default function AddStudentDialog(p: Props) {
     }
     invoke("add_student", {firstNames: entered.firstNames, lastName: entered.lastName, dateOfBirth: entered.dateOfBirth})
       .then((id) => {
-        p.setIsOpen(false);
         p.refreshStudents();
+        p.setIsOpen(false);
         p.selectStudent(id);
       })
       .catch(err => {
