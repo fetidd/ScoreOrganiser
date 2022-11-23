@@ -10,7 +10,7 @@ use plotters::coord::ranged1d::AsRangedCoord;
 use plotters::prelude::*;
 
 pub trait Plotter {
-    fn plot(&mut self, id: &str) -> Result<()>;
+    fn plot(&mut self, id: &str) -> Result<String>;
 }
 
 pub struct SafmedPlotter {
@@ -23,12 +23,12 @@ impl SafmedPlotter {
 }
 
 impl Plotter for SafmedPlotter {
-    fn plot(&mut self, id: &str) -> Result<()> {
+    fn plot(&mut self, id: &str) -> Result<String> {
         let student = self.service.get(&id)?;
         let scores = self.service.get_safmed_scores(&id)?;
-        let mut buffer = String::new();
+        let buffer = String::new();
         let title = format!("Safmed scores for {} {}", student.first_names.clone(), student.last_name.clone());
-        let root_area = SVGBackend::new(&mut buffer, (900, 600)).into_drawing_area();
+        let root_area = SVGBackend::new(&buffer, (900, 600)).into_drawing_area();
         root_area.fill(&WHITE).unwrap();
 
         let naive_datetimes: Vec<NaiveDateTime> = scores.iter().map(|s| s.date.and_hms_opt(0, 0, 0).unwrap()).collect();
@@ -52,7 +52,7 @@ impl Plotter for SafmedPlotter {
 
         ctx.draw_series(correct_data.into_iter().map(|point| {Circle::new(point, 8.0_f64, GREEN.filled())})).expect("failed drawing correct");
         ctx.draw_series(incorrect_data.into_iter().map(|point| {Circle::new(point, 6.0_f64, RED.filled())})).expect("failed drawing incorrect");
-        Ok(())
+        Ok(buffer.clone())
     }
 }
 
@@ -78,6 +78,8 @@ mod tests {
             ])
         });
         let service = Arc::new(SqliteStudentService::new(Arc::new(dao)).unwrap());
-        let plotter = SafmedPlotter::new(service);
+        let mut plotter = SafmedPlotter::new(service);
+        let plot = plotter.plot("st1").unwrap();
+        assert_eq!(plot, String::new());
     }
 }
