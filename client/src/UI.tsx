@@ -5,7 +5,7 @@ import { invoke } from "@tauri-apps/api"
 import "./UI.css"
 
 export default function UI() {
-  // have this maintain a stack so messages odfnt just get skipped
+  // have this maintain a stack so messages dont just get skipped
   const [statusMessage, setStatusMessageObj] = useState({msg: "", level: StatusMessageLevel.Info})
   const setStatusMessage = (msg: string, level: StatusMessageLevel) => {
     setStatusMessageObj({msg: msg, level: level})

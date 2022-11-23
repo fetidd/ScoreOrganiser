@@ -15,6 +15,7 @@ export default function SafmedScores(p: ScoreProps) {
 
     const addScore = () => {
         p.setStatusMessage("adding score", StatusMessageLevel.Debug)
+        getScores()
     }
 
     const getScores = () => {
