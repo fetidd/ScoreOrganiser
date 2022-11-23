@@ -16,7 +16,7 @@ impl SafmedPlotter {
 
     pub fn plot(student: Student) -> Result<()> {
         let path = "./plot.png";
-        let root_area = BitMapBackend::new(path, (1200, 900)).into_drawing_area();
+        let root_area = BitmapBackend::new(path, (1200, 900)).into_drawing_area();
 
         root_area.fill(&WHITE).unwrap();
 
