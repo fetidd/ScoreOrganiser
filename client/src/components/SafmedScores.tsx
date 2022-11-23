@@ -1,8 +1,8 @@
 import { Button, Paper, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import { useState } from "react";
-import { Score, ScoreProps, StatusMessageLevel } from "../types";
-import "./SafmedScores.css"
+import "../styles/SafmedScores.css"
+import { Score, ScoreProps } from "../types";
 
 export default function SafmedScores(p: ScoreProps) {
     const [chart, setChart] = useState("") // dunno if this is what a 'null' chart should be
@@ -14,12 +14,11 @@ export default function SafmedScores(p: ScoreProps) {
 
 
     const addScore = () => {
-        p.setStatusMessage("adding score", StatusMessageLevel.Debug)
         getScores()
     }
 
     const getScores = () => {
-        p.setStatusMessage("getting scores", StatusMessageLevel.Debug)
+        return
     }
 
     return (
@@ -28,8 +27,8 @@ export default function SafmedScores(p: ScoreProps) {
                 <img className="chart"></img>
             </Box>
             <Box className="controls">
-                <TextField id="correct" type="number" label="Correct" variant="outlined" value={correct} onChange={e => setCorrect(e.target.value)}/>
-                <TextField id="incorrect" type="number" label="Incorrect" variant="outlined" value={incorrect} onChange={e => setIncorrect(e.target.value)}/>
+                <TextField id="correct" type="number" label="Correct" variant="outlined" value={correct} onChange={e => setCorrect(e.target.value)} />
+                <TextField id="incorrect" type="number" label="Incorrect" variant="outlined" value={incorrect} onChange={e => setIncorrect(e.target.value)} />
                 <TextField id="date" type="date" variant="outlined" value={currDate} onChange={e => setCurrDate(e.target.value)} />
                 <Button onClick={addScore} >{"Add score"}</Button>
             </Box>

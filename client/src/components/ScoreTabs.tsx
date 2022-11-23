@@ -1,7 +1,7 @@
-import {Student} from "../types"
+import { Student } from "../types"
 import { SafmedScores, WritingScores, ReadingScores } from "../components"
 import { Box, Tabs, Tab, Paper } from "@mui/material"
-import "./ScoreTabs.css"
+import "../styles/ScoreTabs.css"
 import { useState } from "react"
 
 function ScoreTabs(p: Props) {
@@ -17,13 +17,22 @@ function ScoreTabs(p: Props) {
       </Box>
       <Box>
         {currentTab === Assessments.SAFMEDs && (
-            <SafmedScores selectedStudent={p.selectedStudent} setStatusMessage={p.setStatusMessage} />
+          <SafmedScores
+            selectedStudent={p.selectedStudent}
+            scores={[]}
+          />
         )}
         {currentTab === Assessments.Writing && (
-            <ReadingScores selectedStudent={p.selectedStudent} setStatusMessage={p.setStatusMessage} />
+          <ReadingScores
+            selectedStudent={p.selectedStudent}
+            scores={[]}
+          />
         )}
         {currentTab === Assessments.Reading && (
-            <WritingScores selectedStudent={p.selectedStudent} setStatusMessage={p.setStatusMessage} />
+          <WritingScores
+            selectedStudent={p.selectedStudent}
+            scores={[]}
+          />
         )}
       </Box>
     </Paper>
@@ -33,9 +42,8 @@ function ScoreTabs(p: Props) {
 type Props = {
   selectedStudent: Student | null,
   refreshStudents: Function,
-  setStatusMessage: Function
 }
 
 enum Assessments { SAFMEDs, Reading, Writing }
 
-export {ScoreTabs};
+export { ScoreTabs };

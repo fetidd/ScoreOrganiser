@@ -1,5 +1,5 @@
-import { StatusMessageLevel, Student } from "../types"
-import "./StudentList.css"
+import { Student } from "../types"
+import "../styles/StudentList.css"
 import { AddCircleRounded, EditRounded, DeleteRounded, RefreshRounded } from "@mui/icons-material";
 import { IconButton, List, ListItemButton, ListItemText, Paper } from "@mui/material";
 import { useState } from "react";
@@ -16,7 +16,6 @@ export function StudentList(p: Props) {
   }
 
   const refreshStudents = () => {
-    p.setStatusMessage("Getting students...", StatusMessageLevel.Info)
     p.refreshStudents();
   }
 
@@ -48,20 +47,6 @@ export function StudentList(p: Props) {
   }
   )
 
-  const deleteDialog = studentToDelete !== null ?
-    (<DeleteStudentDialog
-      refreshStudents={p.refreshStudents}
-      setStudentToDelete={setStudentToDelete}
-      studentToDelete={studentToDelete}
-    />) : (<></>)
-
-  const editDialog = studentToEdit !== null ?
-    (<EditStudentDialog
-      refreshStudents={p.refreshStudents}
-      setStudentToEdit={setStudentToEdit}
-      studentToEdit={studentToEdit}
-    />) : (<></>)
-
   return (
     <>
       <Paper elevation={3} className="StudentList">
@@ -84,10 +69,19 @@ export function StudentList(p: Props) {
         setIsOpen={setAddStudentDialogIsOpen}
         selectStudent={p.selectStudent}
         refreshStudents={p.refreshStudents}
-        setStatusMessage={p.setStatusMessage}
       />
-      {deleteDialog}
-      {editDialog}
+      {studentToDelete !== null && (
+        <DeleteStudentDialog
+          refreshStudents={p.refreshStudents}
+          setStudentToDelete={setStudentToDelete}
+          studentToDelete={studentToDelete}
+        />)}
+      {studentToEdit !== null && (
+        <EditStudentDialog
+          refreshStudents={p.refreshStudents}
+          setStudentToEdit={setStudentToEdit}
+          studentToEdit={studentToEdit}
+        />)}
     </>
   );
 }
@@ -97,5 +91,4 @@ export type Props = {
   selectStudent: Function, // function to set the selected student
   selectedStudent: Student | null // currently selected student
   refreshStudents: Function,
-  setStatusMessage: Function
 }

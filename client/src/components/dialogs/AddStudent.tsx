@@ -1,8 +1,7 @@
 import { Paper, Dialog, TextField, Button, Box } from "@mui/material"
 import { useState } from "react"
-import { StatusMessageLevel, Student } from "../../types"
 import { invoke } from "@tauri-apps/api"
-import "./AddStudent.css"
+import "../../styles/AddStudent.css"
 
 export default function AddStudentDialog(p: Props) {
   const [entered, setEntered] = useState({
@@ -18,17 +17,15 @@ export default function AddStudentDialog(p: Props) {
     let dob = entered.dateOfBirth.trim();
     if (first === "" || last === "" || dob === "") {
       // validation error
-      p.setStatusMessage("invalid student input", StatusMessageLevel.Error);
       return;
     }
-    invoke("add_student", {firstNames: entered.firstNames, lastName: entered.lastName, dateOfBirth: entered.dateOfBirth})
+    invoke("add_student", { firstNames: entered.firstNames, lastName: entered.lastName, dateOfBirth: entered.dateOfBirth })
       .then((id) => {
         p.refreshStudents();
         p.setIsOpen(false);
         p.selectStudent(id);
       })
       .catch(err => {
-        p.setStatusMessage(err, StatusMessageLevel.Error);
       });
   }
 
@@ -36,35 +33,34 @@ export default function AddStudentDialog(p: Props) {
     <Dialog
       open={p.isOpen}
       onClose={(_event, reason) => {
-        p.setStatusMessage(`closing because ${reason}`, StatusMessageLevel.Debug);
         p.setIsOpen(false)
       }}
     >
       <Paper className="AddStudent" elevation={3}>
         <Box className="inputs">
-          <TextField 
-            id="first_names" 
-            sx={{margin: "5px"}}
-            type="text" 
-            label="First names" 
+          <TextField
+            id="first_names"
+            sx={{ margin: "5px" }}
+            type="text"
+            label="First names"
             variant="outlined"
-            onChange={(e) => setEntered({...entered, firstNames: e.target.value})}
-            />
-          <TextField 
-            id="last_names" 
-            sx={{margin: "5px"}}
-            type="text" 
-            label="Surname" 
-            variant="outlined" 
-            onChange={(e) => setEntered({...entered, lastName: e.target.value})}
-            />
-          <TextField 
-            id="date_of_birth" 
-            sx={{margin: "5px"}}
-            type="date" 
-            variant="outlined" 
-            onChange={(e) => setEntered({...entered, dateOfBirth: e.target.value})}
-            />
+            onChange={(e) => setEntered({ ...entered, firstNames: e.target.value })}
+          />
+          <TextField
+            id="last_names"
+            sx={{ margin: "5px" }}
+            type="text"
+            label="Surname"
+            variant="outlined"
+            onChange={(e) => setEntered({ ...entered, lastName: e.target.value })}
+          />
+          <TextField
+            id="date_of_birth"
+            sx={{ margin: "5px" }}
+            type="date"
+            variant="outlined"
+            onChange={(e) => setEntered({ ...entered, dateOfBirth: e.target.value })}
+          />
         </Box>
         <Box className="buttons">
           <Button onClick={addStudent} >{"Add student"}</Button>
@@ -79,6 +75,5 @@ type Props = {
   setIsOpen: Function,
   selectStudent: Function,
   refreshStudents: Function,
-  setStatusMessage: Function
 }
 
