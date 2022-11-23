@@ -10,14 +10,6 @@ export default function EditStudentDialog(p: Props) {
     dateOfBirth: ""
   });
 
-  // this must only happen when a student is selected to edit
-  useEffect(() => {
-    setEntered({
-        firstNames: p.studentToEdit!.first_names,
-        lastName: p.studentToEdit!.last_name,
-        dateOfBirth: p.studentToEdit!.date_of_birth,
-    })
-  }, [p.isOpen]);
 
   function editStudent() {
     console.log(`EDITING ${entered.firstNames} ${entered.lastName} ${entered.dateOfBirth}`);
@@ -29,10 +21,10 @@ export default function EditStudentDialog(p: Props) {
       console.error("invalid student input");
       return;
     }
-    invoke("edit_student", {firstNames: entered.firstNames, lastName: entered.lastName, dateOfBirth: entered.dateOfBirth})
+    invoke("edit_student", { firstNames: entered.firstNames, lastName: entered.lastName, dateOfBirth: entered.dateOfBirth })
       .then((id) => {
         p.refreshStudents();
-        p.setIsOpen(false);
+        p.setStudentToEdit(null);
       })
       .catch(err => {
         console.error(err);
@@ -41,41 +33,41 @@ export default function EditStudentDialog(p: Props) {
 
   return (
     <Dialog
-      open={p.isOpen}
+      open={true}
       onClose={(_event, reason) => {
         console.log(`closing because ${reason}`);
-        p.setIsOpen(false)
+        p.setStudentToEdit(null)
       }}
     >
       <Paper className="EditStudent" elevation={3}>
         <Box className="inputs">
-          <TextField 
-            id="first_names" 
-            sx={{margin: "5px"}}
-            type="text" 
-            label="First names" 
+          <TextField
+            id="first_names"
+            sx={{ margin: "5px" }}
+            type="text"
+            label="First names"
             variant="outlined"
-            onChange={(e) => setEntered({...entered, firstNames: e.target.value})}
-            />
-          <TextField 
-            id="last_names" 
-            sx={{margin: "5px"}}
-            type="text" 
-            label="Surname" 
-            variant="outlined" 
-            onChange={(e) => setEntered({...entered, lastName: e.target.value})}
-            />
-          <TextField 
-            id="date_of_birth" 
-            sx={{margin: "5px"}}
-            type="date" 
-            variant="outlined" 
-            onChange={(e) => setEntered({...entered, dateOfBirth: e.target.value})}
-            />
+            onChange={(e) => setEntered({ ...entered, firstNames: e.target.value })}
+          />
+          <TextField
+            id="last_names"
+            sx={{ margin: "5px" }}
+            type="text"
+            label="Surname"
+            variant="outlined"
+            onChange={(e) => setEntered({ ...entered, lastName: e.target.value })}
+          />
+          <TextField
+            id="date_of_birth"
+            sx={{ margin: "5px" }}
+            type="date"
+            variant="outlined"
+            onChange={(e) => setEntered({ ...entered, dateOfBirth: e.target.value })}
+          />
         </Box>
         <Box className="buttons">
           <Button onClick={editStudent} >{"Save"}</Button>
-          <Button onClick={() => p.setIsOpen(false)} >{"Cancel"}</Button>
+          <Button onClick={() => p.setStudentToEdit(null)} >{"Cancel"}</Button>
         </Box>
       </Paper>
     </Dialog>
@@ -83,9 +75,8 @@ export default function EditStudentDialog(p: Props) {
 }
 
 type Props = {
-  studentToEdit: Student|null,
-  isOpen: boolean,
-  setIsOpen: Function,
+  studentToEdit: Student | null,
+  setStudentToEdit: Function,
   refreshStudents: Function
 }
 

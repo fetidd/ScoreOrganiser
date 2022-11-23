@@ -9,10 +9,10 @@ export default function DeleteStudentDialog(p: Props) {
     const deleteStudent = () => {
         if (p.studentToDelete === null) return;
         if (confirm === (p.studentToDelete as Student).last_name) {
-            invoke("delete_student", {id: p.studentToDelete.id})
+            invoke("delete_student", { id: p.studentToDelete.id })
                 .then(res => {
                     p.refreshStudents();
-                    p.setIsOpen(false);
+                    p.setStudentToDelete(null);
                 })
                 .catch(err => {
                     console.error("that shouldnt have failed");
@@ -24,36 +24,35 @@ export default function DeleteStudentDialog(p: Props) {
 
     return (
         <Dialog
-          open={p.isOpen}
-          onClose={(_event, reason) => {
-            console.log(`closing because ${reason}`);
-            p.setIsOpen(false)
-          }}
+            open={true}
+            onClose={(_event, reason) => {
+                console.log(`closing because ${reason}`);
+                p.setStudentToDelete(null)
+            }}
         >
-          <Paper className="DeleteStudent" elevation={3}>
-            <Box className="inputs">
-              <Typography variant="h5">{"Enter student's surname to confirm deletion"}</Typography>
-              <TextField 
-                id="last_name" 
-                sx={{margin: "5px"}}
-                type="text" 
-                label="Confirmation" 
-                variant="outlined"
-                onChange={ev => setConfirm(ev.target.value)}
-                />
-            </Box>
-            <Box className="buttons">
-              <Button onClick={deleteStudent} >{"Delete"}</Button>
-              <Button onClick={() => p.setIsOpen(false)} >{"Cancel"}</Button>
-            </Box>
-          </Paper>
+            <Paper className="DeleteStudent" elevation={3}>
+                <Box className="inputs">
+                    <Typography variant="h5">{"Enter student's surname to confirm deletion"}</Typography>
+                    <TextField
+                        id="last_name"
+                        sx={{ margin: "5px" }}
+                        type="text"
+                        label="Confirmation"
+                        variant="outlined"
+                        onChange={ev => setConfirm(ev.target.value)}
+                    />
+                </Box>
+                <Box className="buttons">
+                    <Button onClick={deleteStudent} >{"Delete"}</Button>
+                    <Button onClick={() => p.setStudentToDelete(null)} >{"Cancel"}</Button>
+                </Box>
+            </Paper>
         </Dialog>
-      )
+    )
 }
 
 type Props = {
-    studentToDelete: Student|null,
-    isOpen: boolean,
-    setIsOpen: Function,
-    refreshStudents: Function
+    studentToDelete: Student | null,
+    refreshStudents: Function,
+    setStudentToDelete: Function
 }
