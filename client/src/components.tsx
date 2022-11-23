@@ -6,7 +6,6 @@ import ReadingScores from "./components/ReadingScores"
 import AddStudentDialog from "./components/dialogs/AddStudent"
 import DeleteStudentDialog from "./components/dialogs/DeleteStudent"
 import EditStudentDialog from "./components/dialogs/EditStudent"
-import InfoBar from "./components/InfoBar"
 
 export {
   ScoreTabs,
@@ -17,6 +16,5 @@ export {
   AddStudentDialog,
   DeleteStudentDialog,
   EditStudentDialog,
-  InfoBar
 }
 
