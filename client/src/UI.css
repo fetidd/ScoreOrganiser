@@ -1,10 +1,10 @@
 .UI {
     display: flex;
     box-sizing: border-box;
-    height: 98vh;
+    height: 94vh;
     min-width: 1000px;
-    min-height: 98vh;
-    max-height: 98vh;
+    min-height: 94vh;
+    max-height: 94vh;
 }
 
 .pane-header {

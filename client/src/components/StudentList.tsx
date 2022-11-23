@@ -1,10 +1,9 @@
-import { Student } from "../types"
+import { StatusMessageLevel, Student } from "../types"
 import "./StudentList.css"
 import { AddCircleRounded, EditRounded, DeleteRounded, RefreshRounded } from "@mui/icons-material";
 import { IconButton, List, ListItemButton, ListItemText, Paper } from "@mui/material";
 import { useState } from "react";
 import { AddStudentDialog, DeleteStudentDialog, EditStudentDialog } from "../components";
-import { invoke } from "@tauri-apps/api";
 
 export function StudentList(p: Props) {
   const [editMode, setEditMode] = useState(false)
@@ -17,6 +16,7 @@ export function StudentList(p: Props) {
   }
 
   const refreshStudents = () => {
+    p.setStatusMessage("Getting students...", StatusMessageLevel.Info)
     p.refreshStudents();
   }
 
@@ -84,6 +84,7 @@ export function StudentList(p: Props) {
         setIsOpen={setAddStudentDialogIsOpen}
         selectStudent={p.selectStudent}
         refreshStudents={p.refreshStudents}
+        setStatusMessage={p.setStatusMessage}
       />
       {deleteDialog}
       {editDialog}
@@ -95,5 +96,6 @@ export type Props = {
   students: Student[], // students currently cached in ui
   selectStudent: Function, // function to set the selected student
   selectedStudent: Student | null // currently selected student
-  refreshStudents: Function
+  refreshStudents: Function,
+  setStatusMessage: Function
 }

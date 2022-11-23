@@ -1,6 +1,6 @@
 import { Paper, Dialog, TextField, Button, Box } from "@mui/material"
 import { useState } from "react"
-import { Student } from "../../types"
+import { StatusMessageLevel, Student } from "../../types"
 import { invoke } from "@tauri-apps/api"
 import "./AddStudent.css"
 
@@ -18,7 +18,7 @@ export default function AddStudentDialog(p: Props) {
     let dob = entered.dateOfBirth.trim();
     if (first === "" || last === "" || dob === "") {
       // validation error
-      console.error("invalid student input");
+      p.setStatusMessage("invalid student input", StatusMessageLevel.Error);
       return;
     }
     invoke("add_student", {firstNames: entered.firstNames, lastName: entered.lastName, dateOfBirth: entered.dateOfBirth})
@@ -28,7 +28,7 @@ export default function AddStudentDialog(p: Props) {
         p.selectStudent(id);
       })
       .catch(err => {
-        console.error(err);
+        p.setStatusMessage(err, StatusMessageLevel.Error);
       });
   }
 
@@ -36,7 +36,7 @@ export default function AddStudentDialog(p: Props) {
     <Dialog
       open={p.isOpen}
       onClose={(_event, reason) => {
-        console.log(`closing because ${reason}`);
+        p.setStatusMessage(`closing because ${reason}`, StatusMessageLevel.Debug);
         p.setIsOpen(false)
       }}
     >
@@ -78,6 +78,7 @@ type Props = {
   isOpen: boolean,
   setIsOpen: Function,
   selectStudent: Function,
-  refreshStudents: Function
+  refreshStudents: Function,
+  setStatusMessage: Function
 }
 

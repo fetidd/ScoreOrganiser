@@ -9,21 +9,21 @@ function ScoreTabs(p: Props) {
   return (
     <Paper elevation={3} className="ScoreTabs">
       <Box>
-        <Tabs value={currentTab} onChange={(_e, v) => setCurrentTab(v)}>
+        <Tabs className="tabs" value={currentTab} onChange={(_e, v) => setCurrentTab(v)}>
           <Tab value={Assessments.SAFMEDs} label="SAFMEDs" />
-          <Tab value={Assessments.Reading} label="Reading" />
-          <Tab value={Assessments.Writing} label="Writing" />
+          {/* <Tab value={Assessments.Reading} label="Reading" />
+          <Tab value={Assessments.Writing} label="Writing" /> */}
         </Tabs>
       </Box>
       <Box>
         {currentTab === Assessments.SAFMEDs && (
-            <SafmedScores selectedStudent={p.selectedStudent} />
+            <SafmedScores selectedStudent={p.selectedStudent} setStatusMessage={p.setStatusMessage} />
         )}
         {currentTab === Assessments.Writing && (
-            <ReadingScores selectedStudent={p.selectedStudent} />
+            <ReadingScores selectedStudent={p.selectedStudent} setStatusMessage={p.setStatusMessage} />
         )}
         {currentTab === Assessments.Reading && (
-            <WritingScores selectedStudent={p.selectedStudent} />
+            <WritingScores selectedStudent={p.selectedStudent} setStatusMessage={p.setStatusMessage} />
         )}
       </Box>
     </Paper>
@@ -32,7 +32,8 @@ function ScoreTabs(p: Props) {
 
 type Props = {
   selectedStudent: Student | null,
-  refreshStudents: Function
+  refreshStudents: Function,
+  setStatusMessage: Function
 }
 
 enum Assessments { SAFMEDs, Reading, Writing }

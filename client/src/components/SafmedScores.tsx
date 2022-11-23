@@ -1,20 +1,36 @@
-import { Paper, TextField } from "@mui/material";
+import { Button, Paper, TextField } from "@mui/material";
 import { Box } from "@mui/system";
-import { ScoreProps } from "../types";
+import { useState } from "react";
+import { Score, ScoreProps, StatusMessageLevel } from "../types";
 import "./SafmedScores.css"
 
 export default function SafmedScores(p: ScoreProps) {
-    const fieldStyle = {margin: "0 5px"};
+    const [chart, setChart] = useState("") // dunno if this is what a 'null' chart should be
+    const [scores, setScores] = useState([] as Score[])
+
+    const [correct, setCorrect] = useState("")
+    const [incorrect, setIncorrect] = useState("")
+    const [currDate, setCurrDate] = useState(new Date().toISOString().split('T')[0])
+
+
+    const addScore = () => {
+        p.setStatusMessage("adding score", StatusMessageLevel.Debug)
+    }
+
+    const getScores = () => {
+        p.setStatusMessage("getting scores", StatusMessageLevel.Debug)
+    }
 
     return (
-        <Box>
-            <Box>
-                <Box className="score-chart">{"score chart for safmeds"}</Box>
+        <Box className="tab-container">
+            <Box className="score-chart">
+                <img className="chart"></img>
             </Box>
-            <Box sx={{padding: "10px"}}>
-                <TextField sx={fieldStyle} id="correct" type="number" label="Correct" variant="outlined" />
-                <TextField sx={fieldStyle} id="incorrect" type="number" label="Incorrect" variant="outlined" />
-                <TextField sx={fieldStyle} id="date" type="date" variant="outlined" />
+            <Box className="controls">
+                <TextField id="correct" type="number" label="Correct" variant="outlined" value={correct} onChange={e => setCorrect(e.target.value)}/>
+                <TextField id="incorrect" type="number" label="Incorrect" variant="outlined" value={incorrect} onChange={e => setIncorrect(e.target.value)}/>
+                <TextField id="date" type="date" variant="outlined" value={currDate} onChange={e => setCurrDate(e.target.value)} />
+                <Button onClick={addScore} >{"Add score"}</Button>
             </Box>
         </Box>
     )

@@ -13,7 +13,11 @@ type Score = {
 }
 
 type ScoreProps = {
-    selectedStudent: Student | null
+    selectedStudent: Student | null,
+    setStatusMessage: Function
 }
 
+enum StatusMessageLevel {Error, Warning, Info, Debug}
+
+export { StatusMessageLevel }
 export type { Student, Score, ScoreProps }
