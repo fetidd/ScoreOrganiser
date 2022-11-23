@@ -167,6 +167,19 @@ impl SqliteStudentService {
         let updated = self.dao.update(&student_fields(), "student", args, &wheres)?;
         Ok(updated)
     }
+
+    pub fn get_safmed_scores(&self, id: &str) -> Result<Vec<Score>> {
+        let records = self.dao.select(&score_fields(), "score", &vec![Where::new("id", Symbol::EQ, id.into())]);
+        let mut score_vec = Vec::new();
+        for score_record in records? {
+            let score = match Score::try_from(score_record) {
+                Ok(score) => score,
+                Err(e) => return Err(e),
+            };
+            score_vec.push(score);
+        };
+        Ok(score_vec)
+    }
 }
 
 fn student_fields() -> Vec<String> {
@@ -499,5 +512,23 @@ mod tests {
             });
         let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
         assert_eq!(Ok(1), ss.update_student(&update));
+    }
+
+    #[test]
+    fn test_get_safmed_scores() {
+        let mut dao = MockDao::new();
+        dao.expect_select().withf(move |_,table,_| table=="score").times(1).returning(move |_,_,_| {
+            Ok(vec![
+                Record::from([("id".into(), "st1".into()), ("correct".into(), 89.into()), ("incorrect".into(), 19.into()), ("date".into(), date_from_str("2021-01-01").unwrap().into())]),
+                Record::from([("id".into(), "st1".into()), ("correct".into(), 89.into()), ("incorrect".into(), 19.into()), ("date".into(), date_from_str("2021-01-02").unwrap().into())]),
+                Record::from([("id".into(), "st1".into()), ("correct".into(), 89.into()), ("incorrect".into(), 19.into()), ("date".into(), date_from_str("2021-01-03").unwrap().into())]),
+            ])
+        });
+        let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
+        assert_eq!(ss.get_safmed_scores("st1"), Ok(vec![
+            Score{id: "st1".into(), correct: 89.into(), incorrect: 19.into(), date: date_from_str("2021-01-01").unwrap()},
+            Score{id: "st1".into(), correct: 89.into(), incorrect: 19.into(), date: date_from_str("2021-01-02").unwrap()},
+            Score{id: "st1".into(), correct: 89.into(), incorrect: 19.into(), date: date_from_str("2021-01-03").unwrap()},
+        ]));
     }
 }
