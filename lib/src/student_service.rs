@@ -2,6 +2,7 @@ use crate::constant::*;
 use crate::database::{Dao, Symbol, Value, Where};
 use crate::errors::{Error, Result};
 use crate::models::{Score, Student};
+use crate::useful::date_to_str;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -28,39 +29,13 @@ impl SqliteStudentService {
     fn select_students(&self, wheres: &Vec<Where>) -> Result<Vec<Student>> {
         // get all the scores first, in a hashmap of id -> vec of scores with that id
         // unless the wheres contain a Where that looks for an id, in which case we might as well only look for those scores
-        let where_with_id: Option<&Where> = wheres.iter().find(|w| w.field == "id".to_string());
-        let score_where = match where_with_id {
-            Some(w) => vec![w.clone()],
-            None => vec![],
-        };
-        let scores = self.dao.select(&score_fields(), "score", &score_where);
-        let mut scores_map: HashMap<String, Vec<Score>> = HashMap::new();
-        for score_record in scores? {
-            let score = match Score::try_from(score_record) {
-                Ok(score) => score,
-                Err(e) => return Err(e),
-            };
-            let id = score.id.clone();
-            match scores_map.get(&id) {
-                Some(_) => scores_map.get_mut(&id).unwrap().push(score),
-                None => {
-                    scores_map.insert(id, vec![score]);
-                    ()
-                }
-            };
-        }
-        let scores = scores_map;
         // get the relevant students based on the wheres
         let students = self.dao.select(&student_fields(), "student", wheres);
         let mut student_vec = Vec::new();
         for student_record in students? {
-            let mut student = match Student::try_from(student_record) {
+            let student = match Student::try_from(student_record) {
                 Ok(student) => student,
                 Err(e) => return Err(e),
-            };
-            student.scores = match scores.get(&student.id) {
-                Some(scores) => scores.clone(),
-                None => vec![],
             };
             student_vec.push(student);
         }
@@ -184,6 +159,14 @@ impl SqliteStudentService {
         self.dao.delete("score", &w)?;
         Ok(deleted)
     }
+
+    pub fn update_student(&self, update: &Student) -> Result<usize> {
+        log::debug!("updating student with id {}", update.id);
+        let wheres = vec![Where::new("id", Symbol::EQ, Value::from(update.id.clone()))];
+        let args = vec![update.id.clone().into(), update.first_names.clone().into(), update.last_name.clone().into(), date_to_str(update.date_of_birth).into()];
+        let updated = self.dao.update(&student_fields(), "student", args, &wheres)?;
+        Ok(updated)
+    }
 }
 
 fn student_fields() -> Vec<String> {
@@ -213,7 +196,7 @@ mod tests {
     use crate::models::{Score, Student};
     use crate::useful::*;
 
-    type ServiceTest = Vec<(Vec<Record>, Vec<Record>, Vec<Student>)>;
+    type ServiceTest = Vec<(Vec<Record>, Vec<Student>)>;
 
     #[test]
     fn test_all() {
@@ -235,51 +218,26 @@ mod tests {
                 .into(),
             ],
             vec![
-                [
-                    ("id".into(), "st1".into()),
-                    ("correct".into(), 50.into()),
-                    ("incorrect".into(), 10.into()),
-                    ("date".into(), "2021-07-01".into()),
-                ]
-                .into(),
-                [
-                    ("id".into(), "st1".into()),
-                    ("correct".into(), 60.into()),
-                    ("incorrect".into(), 8.into()),
-                    ("date".into(), "2021-07-02".into()),
-                ]
-                .into(),
-            ],
-            vec![
                 Student {
                     id: "st1".into(),
                     first_names: "Ben".into(),
                     last_name: "Jones".into(),
                     date_of_birth: date_from_str("1990-01-23").unwrap(),
-                    scores: vec![
-                        Score::new("st1", 50, 10, "2021-07-01").unwrap(),
-                        Score::new("st1", 60, 8, "2021-07-02").unwrap(),
-                    ],
                 },
                 Student {
                     id: "st2".into(),
                     first_names: "Gemma Victoria".into(),
                     last_name: "Mercer-Forbes".into(),
                     date_of_birth: date_from_str("1988-09-30").unwrap(),
-                    scores: vec![],
                 },
             ],
         )];
-        for (students, scores, expected) in tests {
+        for (students, expected) in tests {
             let mut dao = MockDao::new();
             dao.expect_select()
                 .withf(|f, t, w| *f == student_fields() && t == "student" && *w == vec![])
                 .times(1)
                 .returning(move |_, _, _| Ok(students.clone()));
-            dao.expect_select()
-                .withf(|f, t, w| *f == score_fields() && t == "score" && *w == vec![])
-                .times(1)
-                .returning(move |_, _, _| Ok(scores.clone()));
             let dao: Arc<dyn Dao> = Arc::new(dao);
             let ss = SqliteStudentService::new(Arc::clone(&dao)).unwrap();
             let actual = ss.all().unwrap();
@@ -297,34 +255,14 @@ mod tests {
                 ("date_of_birth".into(), "1990-01-23".into()),
             ]
             .into()],
-            vec![
-                [
-                    ("id".into(), "st1".into()),
-                    ("correct".into(), 50.into()),
-                    ("incorrect".into(), 10.into()),
-                    ("date".into(), "2021-07-01".into()),
-                ]
-                .into(),
-                [
-                    ("id".into(), "st1".into()),
-                    ("correct".into(), 60.into()),
-                    ("incorrect".into(), 8.into()),
-                    ("date".into(), "2021-07-02".into()),
-                ]
-                .into(),
-            ],
             vec![Student {
                 id: "st1".into(),
                 first_names: "Ben".into(),
                 last_name: "Jones".into(),
                 date_of_birth: date_from_str("1990-01-23").unwrap(),
-                scores: vec![
-                    Score::new("st1", 50, 10, "2021-07-01").unwrap(),
-                    Score::new("st1", 60, 8, "2021-07-02").unwrap(),
-                ],
             }],
         )];
-        for (students, scores, expected) in tests {
+        for (students, expected) in tests {
             let mut dao = MockDao::new();
             dao.expect_select()
                 .withf(|f, t, w| {
@@ -334,14 +272,6 @@ mod tests {
                 })
                 .times(1)
                 .returning(move |_, _, _| Ok(students.clone()));
-            dao.expect_select()
-                .withf(|f, t, w| {
-                    *f == score_fields()
-                        && t == "score"
-                        && *w == vec![Where::new("id", Symbol::EQ, Value::from("st1"))]
-                })
-                .times(1)
-                .returning(move |_, _, _| Ok(scores.clone()));
             let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
             let actual = ss.get("st1").unwrap();
             assert_eq!(expected[0], actual);
@@ -386,7 +316,6 @@ mod tests {
             first_names: "Ben".into(),
             last_name: "Jones".into(),
             date_of_birth: date_from_str("1990-01-23").unwrap(),
-            scores: vec![],
         };
         dao.expect_insert()
             .withf(move |f, t, args| {
@@ -415,14 +344,12 @@ mod tests {
                 first_names: "Ben".into(),
                 last_name: "Jones".into(),
                 date_of_birth: date_from_str("1990-01-23").unwrap(),
-                scores: vec![],
             },
             Student {
                 id: "st2".into(),
                 first_names: "Gemma".into(),
                 last_name: "Forbes".into(),
                 date_of_birth: date_from_str("1988-09-30").unwrap(),
-                scores: vec![],
             },
         ];
         dao.expect_insert()
@@ -502,9 +429,9 @@ mod tests {
             Score::new("st3".into(), 87, 8, "2022-01-02".into()).unwrap(),
         ];
         dao.expect_insert()
-            .withf(move |f, t, args| {
-                *f == score_fields()
-                    && t == "score"
+            .withf(move |fields, table, args| {
+                *fields == score_fields()
+                    && table == "score"
                     && *args
                         == vec![
                             "st1".into(),
@@ -535,18 +462,42 @@ mod tests {
     fn test_delete_student() {
         let mut dao = MockDao::new();
         dao.expect_delete()
-            .withf(move |t, w| {
-                t == "student" && *w == vec![Where::new("id", Symbol::EQ, "st1".into())]
+            .withf(move |table, wheres| {
+                table == "student" && *wheres == vec![Where::new("id", Symbol::EQ, "st1".into())]
             })
             .times(1)
             .returning(move |_, _| Ok(1));
         dao.expect_delete()
-            .withf(move |t, w| {
-                t == "score" && *w == vec![Where::new("id", Symbol::EQ, "st1".into())]
+            .withf(move |table, wheres| {
+                table == "score" && *wheres == vec![Where::new("id", Symbol::EQ, "st1".into())]
             })
             .times(1)
             .returning(move |_, _| Ok(1));
         let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
         assert_eq!(Ok(1), ss.delete_student("st1"));
+    }
+
+    #[test]
+    fn test_update_student() {
+        let update = Student {
+            id: "st1".into(),
+            first_names: "Ben".into(),
+            last_name: "Jones".into(),
+            date_of_birth: date_from_str("1990-01-23").unwrap()
+        };
+        let mut dao = MockDao::new();
+        dao.expect_update()
+            .withf(move |fields, table, args, wheres| {
+                *fields == student_fields() &&
+                table == "student" &&
+                *args == vec!["st1".into(), "Ben".into(), "Jones".into(), date_to_str(update.date_of_birth).into()] &&
+                *wheres == vec![Where::new("id", Symbol::EQ, "st1".into())]
+            })
+            .times(1)
+            .returning(move |_,_,_,_| {
+                Ok(1)
+            });
+        let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
+        assert_eq!(Ok(1), ss.update_student(&update));
     }
 }

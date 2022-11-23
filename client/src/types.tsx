@@ -3,7 +3,6 @@ type Student = {
     first_names: string,
     last_name: string,
     date_of_birth: string,
-    scores: Score[]
 }
 
 type Score = {

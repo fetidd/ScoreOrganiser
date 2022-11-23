@@ -35,7 +35,6 @@ fn can_add_a_student() {
     remove_file(db_path.as_str()).unwrap();
     assert_eq!(s.first_names, "first".to_owned());
     assert_eq!(s.last_name, "last".to_owned());
-    assert_eq!(s.scores, vec![]);
     assert!(!s.id.is_empty()); // randomised id so just make sure its a populated string TODO regex?
 }
 
@@ -49,7 +48,7 @@ fn adding_a_score() {
     let s = service.get("st1").expect("couldn't find student");
     drop(service);
     remove_file(db_path.as_str()).unwrap();
-    assert!((&s.scores).contains(&score));
+    // TODO check scores some other way
 }
 
 #[test]
@@ -69,8 +68,7 @@ fn adding_multiple_score() {
     let gem = service.get("st2").expect("couldn't find student");
     drop(service);
     remove_file(db_path.as_str()).unwrap();
-    assert!((&ben.scores).contains(&scores[0]));
-    assert!((&gem.scores).contains(&scores[1]));
+    // TODO check scores some other way
 }
 
 #[test]
@@ -99,8 +97,46 @@ fn delete_a_student() {
             id: "st1".into(),
             first_names: "Ben".into(),
             last_name: "Jones".into(),
-            scores: vec![],
             date_of_birth: date_from_str("1990-01-23").unwrap()
         }]
+    )
+}
+
+#[test]
+fn update_a_student() {
+    let sqls = vec![
+        format!(
+            "INSERT INTO student VALUES ('st1', 'Ben', 'Jones', '1990-01-23')"
+        ),
+        format!(
+            "INSERT INTO student VALUES ('st2', 'Gemma', 'Forbes', '1990-01-23')",
+        ),
+    ];
+    let db_path = format!("{}.sqlite", function_name!());
+    let service = setup(sqls, &db_path.as_str());
+    service
+        .update_student(&Student { id: "st1".into(), first_names: "NEWNAME".into(), last_name: "NEWNAME".into(), date_of_birth: date_from_str("1990-01-24").unwrap() })
+        .expect("failed to update student st1");
+    let students = service
+        .all()
+        .expect("failed to get all students after updating");
+    drop(service);
+    remove_file(db_path.as_str()).unwrap();
+    assert_eq!(
+        students,
+        vec![
+            Student {
+                id: "st1".into(),
+                first_names: "NEWNAME".into(),
+                last_name: "NEWNAME".into(),
+                date_of_birth: date_from_str("1990-01-24").unwrap()
+            },
+            Student {
+                id: "st2".into(),
+                first_names: "Gemma".into(),
+                last_name: "Forbes".into(),
+                date_of_birth: date_from_str("1990-01-23").unwrap()
+            },
+        ]
     )
 }

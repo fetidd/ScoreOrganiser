@@ -12,7 +12,6 @@ pub struct Student {
     pub first_names: String,
     pub last_name: String,
     pub date_of_birth: NaiveDate,
-    pub scores: Vec<Score>,
 }
 
 impl Student {
@@ -22,7 +21,6 @@ impl Student {
             first_names: first.to_string(),
             last_name: last.to_string(),
             date_of_birth: date_from_str(dob)?,
-            scores: vec![],
         })
     }
 }
@@ -51,7 +49,6 @@ impl TryFrom<Record> for Student {
             first_names,
             last_name,
             date_of_birth,
-            scores: vec![],
         })
     }
 }
@@ -65,7 +62,6 @@ mod test_student {
         let s = Student::new("first", "last", "1990-01-23").unwrap();
         assert_eq!(s.first_names, "first".to_owned());
         assert_eq!(s.last_name, "last".to_owned());
-        assert_eq!(s.scores, vec![]);
         assert!(!s.id.is_empty()); // randomised id so just make sure its a populated string
     }
 
@@ -84,7 +80,6 @@ mod test_student {
                     first_names: "first".into(),
                     last_name: "last".into(),
                     date_of_birth: date_from_str("1990-01-23").unwrap(),
-                    scores: vec![],
                 }),
             ),
             (
@@ -111,10 +106,9 @@ mod test_student {
             first_names: "Ben".into(),
             last_name: "Jones".into(),
             date_of_birth: date_from_str("1990-01-23").unwrap(),
-            scores: vec![],
         };
         let json_student = serde_json::to_string(&student).expect("failed to serialize");
-        assert_eq!(json_student, "{\"id\":\"st1\",\"first_names\":\"Ben\",\"last_name\":\"Jones\",\"date_of_birth\":\"1990-01-23\",\"scores\":[]}".to_owned());
+        assert_eq!(json_student, "{\"id\":\"st1\",\"first_names\":\"Ben\",\"last_name\":\"Jones\",\"date_of_birth\":\"1990-01-23\"}".to_owned());
         assert_eq!(
             student,
             serde_json::from_str(&json_student).expect("failed to deserialize")

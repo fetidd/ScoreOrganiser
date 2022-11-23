@@ -5,9 +5,9 @@ import { invoke } from "@tauri-apps/api"
 
 export default function EditStudentDialog(p: Props) {
   const [entered, setEntered] = useState({
-    firstNames: "",
-    lastName: "",
-    dateOfBirth: ""
+    firstNames: p.studentToEdit.first_names,
+    lastName: p.studentToEdit.last_name,
+    dateOfBirth: p.studentToEdit.date_of_birth
   });
 
 
@@ -21,7 +21,7 @@ export default function EditStudentDialog(p: Props) {
       console.error("invalid student input");
       return;
     }
-    invoke("edit_student", { firstNames: entered.firstNames, lastName: entered.lastName, dateOfBirth: entered.dateOfBirth })
+    invoke("edit_student", {update: { id: p.studentToEdit.id, first_names: entered.firstNames, last_name: entered.lastName, date_of_birth: entered.dateOfBirth }})
       .then((id) => {
         p.refreshStudents();
         p.setStudentToEdit(null);
@@ -43,6 +43,7 @@ export default function EditStudentDialog(p: Props) {
         <Box className="inputs">
           <TextField
             id="first_names"
+            value={entered.firstNames}
             sx={{ margin: "5px" }}
             type="text"
             label="First names"
@@ -51,6 +52,7 @@ export default function EditStudentDialog(p: Props) {
           />
           <TextField
             id="last_names"
+            value={entered.lastName}
             sx={{ margin: "5px" }}
             type="text"
             label="Surname"
@@ -59,6 +61,7 @@ export default function EditStudentDialog(p: Props) {
           />
           <TextField
             id="date_of_birth"
+            value={entered.dateOfBirth}
             sx={{ margin: "5px" }}
             type="date"
             variant="outlined"
@@ -75,7 +78,7 @@ export default function EditStudentDialog(p: Props) {
 }
 
 type Props = {
-  studentToEdit: Student | null,
+  studentToEdit: Student,
   setStudentToEdit: Function,
   refreshStudents: Function
 }

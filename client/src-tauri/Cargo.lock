@@ -2106,6 +2106,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "plotters-canvas"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "498a82bf654581fa4df6c1bd73e56f8556bdeec5eca5a0989d170ca0728ccace"
+dependencies = [
+ "js-sys",
+ "plotters-backend",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
 name = "plotters-svg"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2434,6 +2446,7 @@ dependencies = [
  "log",
  "matches",
  "plotters",
+ "plotters-canvas",
  "regex",
  "rusqlite",
  "serde",
