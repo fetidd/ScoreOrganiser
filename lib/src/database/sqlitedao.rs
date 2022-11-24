@@ -1,5 +1,6 @@
 use std::sync::Mutex;
 
+use crate::constant::ENABLE_FOREIGN_KEYS;
 use crate::database::{Dao, Record, Value, Where};
 use crate::errors::{Error, Result};
 
@@ -26,9 +27,21 @@ impl SqliteDao {
             }
         }
     }
+
+    
 }
 
 impl Dao for SqliteDao {
+    fn init(&self) -> Result<()> {
+        log::debug!("initialising...");
+        let sqls = [ENABLE_FOREIGN_KEYS];
+        for sql in sqls {
+            log::debug!("executing {sql}");
+            self.execute(sql)?;
+        }
+        Ok(())
+    }
+
     fn select(
         &self,
         fields: &Vec<String>,

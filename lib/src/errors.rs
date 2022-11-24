@@ -9,6 +9,7 @@ pub enum Error {
     BadDateConversion(String),
     ImporterError(String),
     ParseIntError(String),
+    NoScoresToPlot
 }
 
 impl std::fmt::Display for Error {
@@ -21,6 +22,7 @@ impl std::fmt::Display for Error {
             Error::BadDateConversion(s) => write!(f, "BadDateConversion: {s}"),
             Error::ImporterError(s) => write!(f, "ImporterError: {s}"),
             Error::ParseIntError(s) => write!(f, "ParseIntError: {s}"),
+            Error::NoScoresToPlot => write!(f, "No scores found to plot"),
         }
     }
 }

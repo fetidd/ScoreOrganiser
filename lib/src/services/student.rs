@@ -3,7 +3,6 @@ use crate::database::{Dao, Symbol, Value, Where};
 use crate::errors::{Error, Result};
 use crate::models::Student;
 use crate::useful::date_to_str;
-use std::collections::HashMap;
 use std::sync::Arc;
 
 pub struct StudentService {
@@ -18,7 +17,7 @@ impl StudentService {
 
     pub fn init(&self) -> Result<()> {
         log::debug!("initialising...");
-        let sqls = [ENABLE_FOREIGN_KEYS, STUDENT_SCHEMA, SCORE_SCHEMA];
+        let sqls = [STUDENT_SCHEMA];
         for sql in sqls {
             log::debug!("executing {sql}");
             self.dao.execute(sql)?;

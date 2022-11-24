@@ -14,7 +14,6 @@ type Score = {
 
 type ScoreProps = {
     selectedStudent: Student | null,
-    scores: Score[]
 }
 
 export type { Student, Score, ScoreProps }

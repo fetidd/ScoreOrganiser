@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::constant::SCORE_FIELDS;
+use crate::constant::{SCORE_FIELDS, SCORE_SCHEMA};
 use crate::database::{Where, Symbol, Dao};
 use crate::errors::Result;
 use crate::models::SafmedScore;
@@ -13,6 +13,16 @@ pub struct SafmedScoreService {
 impl SafmedScoreService {
     pub fn new(dao: Arc<dyn Dao>) -> Self {
         Self {dao}
+    }
+
+    pub fn init(&self) -> Result<()> {
+        log::debug!("initialising...");
+        let sqls = [SCORE_SCHEMA];
+        for sql in sqls {
+            log::debug!("executing {sql}");
+            self.dao.execute(sql)?;
+        }
+        Ok(())
     }
 
     pub fn add_score(&self, score: &SafmedScore) -> Result<usize> {

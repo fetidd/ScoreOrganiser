@@ -15,11 +15,11 @@ pub const STUDENT_FIELDS: [&'static str; 4] = [
     "date_of_birth",
 ];
 
-pub const SCORE_SCHEMA: &str = "CREATE TABLE IF NOT EXISTS score (
+pub const SCORE_SCHEMA: &str = "CREATE TABLE IF NOT EXISTS safmed (
     id TEXT NOT NULL,
     correct INTEGER NOT NULL,
     incorrect INTEGER NOT NULL,
-    date TEXT NOT NULL,
+    date TEXT NOT NULL UNIQUE,
     CONSTRAINT student_id FOREIGN KEY (id) REFERENCES student(id)
 )";
 

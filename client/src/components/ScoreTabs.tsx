@@ -19,19 +19,16 @@ function ScoreTabs(p: Props) {
         {currentTab === Assessments.SAFMEDs && (
           <SafmedScores
             selectedStudent={p.selectedStudent}
-            scores={[]}
           />
         )}
         {currentTab === Assessments.Writing && (
           <ReadingScores
             selectedStudent={p.selectedStudent}
-            scores={[]}
           />
         )}
         {currentTab === Assessments.Reading && (
           <WritingScores
             selectedStudent={p.selectedStudent}
-            scores={[]}
           />
         )}
       </Box>
