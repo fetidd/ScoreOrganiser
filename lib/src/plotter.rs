@@ -29,7 +29,7 @@ impl Plotter for SafmedPlotter {
         let correct_data: Vec<(NaiveDateTime, i64)> = naive_datetimes.clone().into_iter().zip(correct).collect();
         let incorrect_data: Vec<(NaiveDateTime, i64)> = naive_datetimes.clone().into_iter().zip(incorrect).collect();
 
-        let root_area = SVGBackend::with_string(&mut buffer, (800, 800)).into_drawing_area();
+        let root_area = SVGBackend::with_string(&mut buffer, (800, 600)).into_drawing_area();
         root_area.fill(&WHITE).unwrap();
 
         let mut ctx = ChartBuilder::on(&root_area)
