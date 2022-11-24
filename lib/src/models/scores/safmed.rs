@@ -5,16 +5,16 @@ use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Score {
+pub struct SafmedScore {
     pub id: String,
     pub correct: i32,
     pub incorrect: i32,
     pub date: NaiveDate,
 }
 
-impl Score {
+impl SafmedScore {
     pub fn new(id: &str, correct: i32, incorrect: i32, date: &str) -> Result<Self> {
-        Ok(Score {
+        Ok(SafmedScore {
             id: String::from(id),
             correct,
             incorrect,
@@ -23,7 +23,7 @@ impl Score {
     }
 }
 
-impl TryFrom<Record> for Score {
+impl TryFrom<Record> for SafmedScore {
     type Error = Error;
     fn try_from(rec: Record) -> Result<Self> {
         let id = match rec.get("id") {
@@ -42,7 +42,7 @@ impl TryFrom<Record> for Score {
             Some(v) => v.try_into()?,
             None => return Err(Error::ValueError("Missing date".to_string())),
         };
-        Ok(Score {
+        Ok(SafmedScore {
             id,
             correct,
             incorrect,
@@ -57,13 +57,13 @@ mod test_score {
 
     #[test]
     fn test_new() {
-        let s = Score::new("test_id", 10, 5, "2021-01-01").unwrap();
+        let s = SafmedScore::new("test_id", 10, 5, "2021-01-01").unwrap();
         assert_eq!(s.id, "test_id".to_owned());
         assert_eq!(s.correct, 10);
         assert_eq!(s.incorrect, 5);
         assert_eq!(s.date, date_from_str("2021-01-01").unwrap());
 
-        let err = Score::new("test_id", 10, 5, "").unwrap_err();
+        let err = SafmedScore::new("test_id", 10, 5, "").unwrap_err();
         assert_eq!(
             err,
             Error::BadDateConversion("'' is not a valid date-formatted string".into())
@@ -72,7 +72,7 @@ mod test_score {
 
     #[test]
     fn test_try_from() {
-        let tests: Vec<(Record, Result<Score>)> = vec![
+        let tests: Vec<(Record, Result<SafmedScore>)> = vec![
             (
                 Record::from([
                     ("id".into(), "st1".into()),
@@ -80,7 +80,7 @@ mod test_score {
                     ("incorrect".into(), 5.into()),
                     ("date".into(), "2021-01-01".into()),
                 ]),
-                Ok(Score {
+                Ok(SafmedScore {
                     id: "st1".into(),
                     correct: 10.into(),
                     incorrect: 5.into(),
@@ -97,7 +97,7 @@ mod test_score {
             ),
         ];
         for (rec, exp) in tests {
-            let act = Score::try_from(rec);
+            let act = SafmedScore::try_from(rec);
             match exp.is_err() {
                 true => assert_eq!(exp.unwrap_err(), act.unwrap_err()),
                 false => assert_eq!(exp.unwrap(), act.unwrap()),

@@ -1,5 +1,5 @@
-pub mod safmed_score;
+pub mod scores;
 pub mod student;
 
-pub use safmed_score::Score;
+pub use scores::safmed::SafmedScore;
 pub use student::Student;

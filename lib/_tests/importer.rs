@@ -1,6 +1,6 @@
 use scorg_lib::{
     constant::*, database::SqliteDao, function_name, importer::Importer,
-    student_service::SqliteStudentService, useful::*,
+    services::StudentService, useful::*,
 };
 use std::{
     fs::{remove_file, File},
@@ -8,7 +8,7 @@ use std::{
     sync::Arc,
 };
 
-fn setup(mut sqls: Vec<String>, file_path: &str) -> SqliteStudentService {
+fn setup(mut sqls: Vec<String>, file_path: &str) -> StudentService {
     sqls.extend(vec![
         ENABLE_FOREIGN_KEYS.into(),
         STUDENT_SCHEMA.into(),
@@ -16,7 +16,7 @@ fn setup(mut sqls: Vec<String>, file_path: &str) -> SqliteStudentService {
     ]);
     let dao = SqliteDao::new(file_path);
     execute_sqls(sqls, &dao).expect("sqls failed");
-    let service = SqliteStudentService::new(Arc::new(dao)).unwrap();
+    let service = StudentService::new(Arc::new(dao));
     service
 }
 
@@ -32,7 +32,7 @@ Gemma Victoria,Mercer-Forbes,1988-08-30,98/12,78/12,89/3";
     csv_file
         .write(csv_data.as_bytes())
         .expect("failed to write to csv file");
-    let service = Arc::new(setup(vec![], db_path.as_str()));
+    let students = Arc::new(setup(vec![], db_path.as_str()));
     let importer = Importer::new(Arc::clone(&service));
     let imported = importer
         .import(&csv_path.as_str())

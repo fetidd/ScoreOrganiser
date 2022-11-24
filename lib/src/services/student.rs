@@ -1,19 +1,19 @@
 use crate::constant::*;
 use crate::database::{Dao, Symbol, Value, Where};
 use crate::errors::{Error, Result};
-use crate::models::{Score, Student};
+use crate::models::Student;
 use crate::useful::date_to_str;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub struct SqliteStudentService {
+pub struct StudentService {
     dao: Arc<dyn Dao>,
 }
 
-impl SqliteStudentService {
-    pub fn new(dao: Arc<dyn Dao>) -> Result<Self> {
-        log::debug!("created new SqliteStudentService");
-        Ok(Self { dao })
+impl StudentService {
+    pub fn new(dao: Arc<dyn Dao>) -> Self {
+        log::debug!("created new StudentService");
+        Self { dao }
     }
 
     pub fn init(&self) -> Result<()> {
@@ -111,46 +111,9 @@ impl SqliteStudentService {
         Ok(added)
     }
 
-    pub fn add_score(&self, score: &Score) -> Result<usize> {
-        log::debug!("adding score {score:?}");
-        let added = self.dao.insert(
-            &score_fields(),
-            "score",
-            vec![
-                score.id.to_owned().into(),
-                score.correct.into(),
-                score.incorrect.into(),
-                score.date.to_owned().into(),
-            ],
-        )?;
-        Ok(added)
-    }
+    
 
-    pub fn add_scores(&self, scores: &Vec<Score>) -> Result<usize> {
-        log::debug!("adding scores {scores:?}");
-        // get vec of all the args to pass to insert
-        let mut args = Vec::new();
-        // get the latest score for each id
-        let mut latest: HashMap<String, Score> = HashMap::new();
-        for score in scores {
-            args.push(score.id.to_owned().into());
-            args.push(score.correct.into());
-            args.push(score.incorrect.into());
-            args.push(score.date.to_owned().into());
-            match latest.get(&score.id.to_owned()) {
-                Some(s) => {
-                    if s.date < score.date {
-                        latest.insert(score.id.to_owned(), score.clone());
-                    }
-                }
-                None => {
-                    latest.insert(score.id.to_owned(), score.clone());
-                }
-            };
-        }
-        let added = self.dao.insert(&score_fields(), "score", args)?;
-        Ok(added)
-    }
+    
 
     pub fn delete_student(&self, id: &str) -> Result<usize> {
         log::debug!("deleting student with id {id}");
@@ -168,18 +131,7 @@ impl SqliteStudentService {
         Ok(updated)
     }
 
-    pub fn get_safmed_scores(&self, id: &str) -> Result<Vec<Score>> {
-        let records = self.dao.select(&score_fields(), "score", &vec![Where::new("id", Symbol::EQ, id.into())]);
-        let mut score_vec = Vec::new();
-        for score_record in records? {
-            let score = match Score::try_from(score_record) {
-                Ok(score) => score,
-                Err(e) => return Err(e),
-            };
-            score_vec.push(score);
-        };
-        Ok(score_vec)
-    }
+    
 }
 
 fn student_fields() -> Vec<String> {
@@ -190,13 +142,7 @@ fn student_fields() -> Vec<String> {
         .collect()
 }
 
-fn score_fields() -> Vec<String> {
-    SCORE_FIELDS
-        .to_vec()
-        .iter()
-        .map(|x| x.to_string())
-        .collect()
-}
+
 
 // #################
 // ##### TESTS #####
@@ -206,7 +152,7 @@ fn score_fields() -> Vec<String> {
 mod tests {
     use super::*;
     use crate::database::{dao::MockDao, Record, Symbol, Value, Where};
-    use crate::models::{Score, Student};
+    use crate::models::Student;
     use crate::useful::*;
 
     type ServiceTest = Vec<(Vec<Record>, Vec<Student>)>;
@@ -252,7 +198,7 @@ mod tests {
                 .times(1)
                 .returning(move |_, _, _| Ok(students.clone()));
             let dao: Arc<dyn Dao> = Arc::new(dao);
-            let ss = SqliteStudentService::new(Arc::clone(&dao)).unwrap();
+            let ss = StudentService::new(Arc::clone(&dao));
             let actual = ss.all().unwrap();
             assert_eq!(expected, actual);
         }
@@ -285,7 +231,7 @@ mod tests {
                 })
                 .times(1)
                 .returning(move |_, _, _| Ok(students.clone()));
-            let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
+            let ss = StudentService::new(Arc::new(dao));
             let actual = ss.get("st1").unwrap();
             assert_eq!(expected[0], actual);
         }
@@ -315,7 +261,7 @@ mod tests {
                 })
                 .times(1)
                 .returning(move |_, _, _| Ok(students.clone()));
-            let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
+            let ss = StudentService::new(Arc::new(dao));
             let actual = ss.get_id_for_name("Ben", "Jones").unwrap();
             assert_eq!(expected, actual);
         }
@@ -344,7 +290,7 @@ mod tests {
             })
             .times(1)
             .returning(move |_, _, _| Ok(1));
-        let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
+        let ss = StudentService::new(Arc::new(dao));
         assert_eq!(Ok(1), ss.add_student(&student));
     }
 
@@ -383,93 +329,11 @@ mod tests {
             })
             .times(1)
             .returning(move |_, _, _| Ok(2));
-        let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
+        let ss = StudentService::new(Arc::new(dao));
         assert_eq!(Ok(2), ss.add_students(&students));
     }
 
-    #[test]
-    fn test_add_score() {
-        let mut dao = MockDao::new();
-        let score = Score::new("st1".into(), 99, 11, "2022-01-01".into()).unwrap();
-        dao.expect_insert()
-            .withf(move |f, t, args| {
-                *f == score_fields()
-                    && t == "score"
-                    && *args == vec!["st1".into(), 99.into(), 11.into(), "2022-01-01".into()]
-            })
-            .times(1)
-            .returning(move |_, _, _| Ok(1));
-        let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
-        assert_eq!(Ok(1), ss.add_score(&score));
-    }
-
-    #[test]
-    fn test_add_scores() {
-        let mut dao = MockDao::new();
-        let scores = vec![
-            Score::new("st1".into(), 99, 11, "2022-01-01".into()).unwrap(),
-            Score::new("st1".into(), 87, 8, "2022-01-02".into()).unwrap(),
-        ];
-        dao.expect_insert()
-            .withf(move |f, t, args| {
-                *f == score_fields()
-                    && t == "score"
-                    && *args
-                        == vec![
-                            "st1".into(),
-                            99.into(),
-                            11.into(),
-                            "2022-01-01".into(),
-                            "st1".into(),
-                            87.into(),
-                            8.into(),
-                            "2022-01-02".into(),
-                        ]
-            })
-            .times(1)
-            .returning(move |_, _, _| Ok(2));
-        let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
-        assert_eq!(Ok(2), ss.add_scores(&scores));
-    }
-
-    #[test]
-    fn test_add_scores_for_multiple_students() {
-        let mut dao = MockDao::new();
-        let scores = vec![
-            Score::new("st1".into(), 99, 11, "2022-01-01".into()).unwrap(),
-            Score::new("st1".into(), 87, 8, "2022-01-02".into()).unwrap(),
-            Score::new("st2".into(), 99, 11, "2022-01-01".into()).unwrap(),
-            Score::new("st3".into(), 87, 8, "2022-01-02".into()).unwrap(),
-        ];
-        dao.expect_insert()
-            .withf(move |fields, table, args| {
-                *fields == score_fields()
-                    && table == "score"
-                    && *args
-                        == vec![
-                            "st1".into(),
-                            99.into(),
-                            11.into(),
-                            "2022-01-01".into(),
-                            "st1".into(),
-                            87.into(),
-                            8.into(),
-                            "2022-01-02".into(),
-                            "st2".into(),
-                            99.into(),
-                            11.into(),
-                            "2022-01-01".into(),
-                            "st3".into(),
-                            87.into(),
-                            8.into(),
-                            "2022-01-02".into(),
-                        ]
-            })
-            .times(1)
-            .returning(move |_, _, _| Ok(4));
-        let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
-        assert_eq!(Ok(4), ss.add_scores(&scores));
-    }
+    
 
     #[test]
     fn test_delete_student() {
@@ -486,7 +350,7 @@ mod tests {
             })
             .times(1)
             .returning(move |_, _| Ok(1));
-        let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
+        let ss = StudentService::new(Arc::new(dao));
         assert_eq!(Ok(1), ss.delete_student("st1"));
     }
 
@@ -510,25 +374,9 @@ mod tests {
             .returning(move |_,_,_,_| {
                 Ok(1)
             });
-        let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
+        let ss = StudentService::new(Arc::new(dao));
         assert_eq!(Ok(1), ss.update_student(&update));
     }
 
-    #[test]
-    fn test_get_safmed_scores() {
-        let mut dao = MockDao::new();
-        dao.expect_select().withf(move |_,table,_| table=="score").times(1).returning(move |_,_,_| {
-            Ok(vec![
-                Record::from([("id".into(), "st1".into()), ("correct".into(), 89.into()), ("incorrect".into(), 19.into()), ("date".into(), date_from_str("2021-01-01").unwrap().into())]),
-                Record::from([("id".into(), "st1".into()), ("correct".into(), 89.into()), ("incorrect".into(), 19.into()), ("date".into(), date_from_str("2021-01-02").unwrap().into())]),
-                Record::from([("id".into(), "st1".into()), ("correct".into(), 89.into()), ("incorrect".into(), 19.into()), ("date".into(), date_from_str("2021-01-03").unwrap().into())]),
-            ])
-        });
-        let ss = SqliteStudentService::new(Arc::new(dao)).unwrap();
-        assert_eq!(ss.get_safmed_scores("st1"), Ok(vec![
-            Score{id: "st1".into(), correct: 89.into(), incorrect: 19.into(), date: date_from_str("2021-01-01").unwrap()},
-            Score{id: "st1".into(), correct: 89.into(), incorrect: 19.into(), date: date_from_str("2021-01-02").unwrap()},
-            Score{id: "st1".into(), correct: 89.into(), incorrect: 19.into(), date: date_from_str("2021-01-03").unwrap()},
-        ]));
-    }
+    
 }

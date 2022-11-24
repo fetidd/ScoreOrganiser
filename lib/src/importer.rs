@@ -1,22 +1,23 @@
 use std::sync::Arc;
 
 use crate::errors::{Error, Result};
-use crate::models::{Score, Student};
-use crate::student_service::SqliteStudentService;
+use crate::models::{SafmedScore, Student};
+use crate::services::{StudentService, SafmedScoreService};
 use crate::useful::*;
 use csv::{Reader, StringRecord};
 
 pub struct Importer {
-    service: Arc<SqliteStudentService>,
+    student_service: Arc<StudentService>,
+    score_service: Arc<SafmedScoreService>
 }
 
 impl Importer {
-    pub fn new(service: Arc<SqliteStudentService>) -> Importer {
+    pub fn new(student_service: Arc<StudentService>, score_service: Arc<SafmedScoreService>) -> Importer {
         log::debug!("created new Importer");
-        Importer { service }
+        Importer { student_service, score_service }
     }
 
-    fn parse_scores(record: Vec<&str>, id: &str, dates: Vec<&str>) -> Result<Vec<Score>> {
+    fn parse_scores(record: Vec<&str>, id: &str, dates: Vec<&str>) -> Result<Vec<SafmedScore>> {
         let parsed_scores: Vec<Result<(i32, i32, String)>> = record
             .into_iter()
             .zip(dates)
@@ -26,7 +27,7 @@ impl Importer {
         for score in parsed_scores {
             match &score {
                 Ok(sc) => {
-                    let new_score = Score::new(id, sc.0, sc.1, &sc.2)?;
+                    let new_score = SafmedScore::new(id, sc.0, sc.1, &sc.2)?;
                     scores.push(new_score);
                 }
                 _ => {
@@ -105,7 +106,7 @@ impl Importer {
         last_name: &str,
         dob: &str,
     ) -> Result<(String, Option<Student>)> {
-        match self.service.get_id_for_name(&first_names, &last_name) {
+        match self.student_service.get_id_for_name(&first_names, &last_name) {
             // if there is one, just get it's id
             Ok(id) => Ok((id, None)),
             // add the student to students_to_add and get its id if not
@@ -124,7 +125,7 @@ impl Importer {
         let dates: Vec<&str> = headers.into_iter().skip(3).collect();
         let records = reader.records();
         let mut students_to_add: Vec<Student> = vec![];
-        let mut scores_to_add: Vec<Score> = vec![];
+        let mut scores_to_add: Vec<SafmedScore> = vec![];
         for record in records {
             let r = record?;
             let (first_names, last_name, dob) = Self::extract_data(&r)?;
@@ -138,8 +139,8 @@ impl Importer {
             let scores = Self::parse_scores(scores_in_record, &id, dates.clone())?;
             scores_to_add.extend(scores);
         }
-        let students_added = self.service.add_students(&students_to_add)?;
-        let scores_added = self.service.add_scores(&scores_to_add)?;
+        let students_added = self.student_service.add_students(&students_to_add)?;
+        let scores_added = self.score_service.add_scores(&scores_to_add)?;
         log::debug!(
             "added {} students and {} scores",
             students_added,
@@ -152,7 +153,7 @@ impl Importer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::database::{dao::MockDao, Value};
+    use crate::database::{dao::MockDao, Value, Dao};
     use std::collections::HashMap;
 
     #[test]
@@ -194,13 +195,13 @@ mod tests {
 
     #[test]
     fn test_parse_scores() {
-        let tests: Vec<(Vec<&str>, &str, Vec<&str>, Result<Vec<Score>>)> = vec![(
+        let tests: Vec<(Vec<&str>, &str, Vec<&str>, Result<Vec<SafmedScore>>)> = vec![(
             vec!["67/23", "89/34"],
             "st1",
             vec!["2021-01-01", "2021-01-02"],
             Ok(vec![
-                Score::new("st1", 67, 23, "2021-01-01").unwrap(),
-                Score::new("st1", 89, 34, "2021-01-02").unwrap(),
+                SafmedScore::new("st1", 67, 23, "2021-01-01").unwrap(),
+                SafmedScore::new("st1", 89, 34, "2021-01-02").unwrap(),
             ]),
         )];
         for (rec, id, dates, exp) in tests {
@@ -239,8 +240,10 @@ mod tests {
                 Value::from("existing_id"),
             )])])
         });
-        let service = Arc::new(SqliteStudentService::new(Arc::new(dao)).unwrap());
-        let importer = Importer::new(service);
+        let arc_dao: Arc<dyn Dao> = Arc::new(dao);
+        let student_service = Arc::new(StudentService::new(Arc::clone(&arc_dao)));
+        let score_service = Arc::new(SafmedScoreService::new(Arc::clone(&arc_dao)));
+        let importer = Importer::new(student_service, score_service);
         let actual = importer.get_id("Ben", "Jones", "1999-01-23").unwrap();
         assert_eq!(actual.0, "existing_id".to_owned());
         assert!(actual.1.is_none());
@@ -251,8 +254,10 @@ mod tests {
         let mut dao = MockDao::new();
         dao.expect_select()
             .returning(move |_, _, _| Err(Error::NoStudent));
-        let service = Arc::new(SqliteStudentService::new(Arc::new(dao)).unwrap());
-        let importer = Importer::new(service);
+        let arc_dao: Arc<dyn Dao> = Arc::new(dao);
+        let student_service = Arc::new(StudentService::new(Arc::clone(&arc_dao)));
+        let score_service = Arc::new(SafmedScoreService::new(Arc::clone(&arc_dao)));
+        let importer = Importer::new(student_service, score_service);
         let actual = importer.get_id("Ben", "Jones", "1990-01-23").unwrap();
         assert!(!actual.0.is_empty());
         assert_eq!(actual.0, actual.1.unwrap().id);
