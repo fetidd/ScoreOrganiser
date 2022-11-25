@@ -24,7 +24,7 @@ export default function UI() {
     let found: Student[] = students.filter((st: Student) => st.id === id);
     if (found.length === 1) {
       setSelectedStudent(found[0]);
-    } else setSelectedStudent(students[0]);
+    } else setSelectedStudent(null);
   }
 
   useEffect(refreshStudents, []);

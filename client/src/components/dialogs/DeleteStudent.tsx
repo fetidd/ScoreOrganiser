@@ -7,7 +7,10 @@ export default function DeleteStudentDialog(p: Props) {
     const [confirm, setConfirm] = useState("")
 
     const deleteStudent = () => {
-        if (p.studentToDelete === null) return;
+        if (p.studentToDelete === null || p.studentToDelete === undefined) {
+            console.error("studentToDelete was null or undefined")
+            return
+        }
         if (confirm === (p.studentToDelete as Student).last_name) {
             invoke("delete_student", { id: p.studentToDelete.id })
                 .then(res => {
@@ -15,7 +18,7 @@ export default function DeleteStudentDialog(p: Props) {
                     p.setStudentToDelete(null);
                 })
                 .catch(err => {
-                    console.error("that shouldnt have failed");
+                    console.error(`that shouldnt have failed: ${err}`);
                 });
         } else {
             console.error("name didnt match, not deleting student");

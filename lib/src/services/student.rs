@@ -110,15 +110,10 @@ impl StudentService {
         Ok(added)
     }
 
-    
-
-    
-
     pub fn delete_student(&self, id: &str) -> Result<usize> {
         log::debug!("deleting student with id {id}");
         let w = vec![Where::new("id", Symbol::EQ, Value::from(id))];
         let deleted = self.dao.delete("student", &w)?;
-        self.dao.delete("score", &w)?;
         Ok(deleted)
     }
 
@@ -129,8 +124,6 @@ impl StudentService {
         let updated = self.dao.update(&student_fields(), "student", args, &wheres)?;
         Ok(updated)
     }
-
-    
 }
 
 fn student_fields() -> Vec<String> {

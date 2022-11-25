@@ -85,10 +85,20 @@ fn add_student(
 }
 
 #[tauri::command]
-fn delete_student(id: String, service: State<Arc<StudentService>>) -> Result<(), String> {
-    match service.delete_student(&id) {
+fn delete_student(id: String, students: State<Arc<StudentService>>, scores: State<Arc<SafmedScoreService>>) -> Result<(), String> {
+    match scores.delete_scores(&id) {
+        Ok(num) => debug!("deleted {num} scores"),
+        Err(error) => {
+            error!("{}", error);
+            return Err(error.to_string())
+        }
+    };
+    match students.delete_student(&id) {
         Ok(_) => Ok(()),
-        Err(error) => Err(error.to_string()),
+        Err(error) => {
+            error!("{}", error);
+            Err(error.to_string())
+        }
     }
 }
 

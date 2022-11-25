@@ -78,6 +78,10 @@ impl SafmedScoreService {
         };
         Ok(score_vec)
     }
+
+    pub fn delete_scores(&self, id: &str) -> Result<usize> {
+        self.dao.delete("safmed", &vec![Where::new("id", Symbol::EQ, id.into())])
+    }
 }
 
 fn score_fields() -> Vec<String> {
