@@ -5,6 +5,7 @@ use crate::constant::{SCORE_FIELDS, SCORE_SCHEMA};
 use crate::database::{Where, Symbol, Dao};
 use crate::errors::Result;
 use crate::models::SafmedScore;
+use crate::useful::date_to_str;
 
 pub struct SafmedScoreService {
     dao: Arc<dyn Dao>
@@ -45,15 +46,16 @@ impl SafmedScoreService {
     pub fn update_score(&self, score: &SafmedScore) -> Result<usize> {
         log::debug!("updating score {score:?}");
         let added = self.dao.update(
-            &score_fields(),
+            &vec!["correct".into(), "incorrect".into()],
             "safmed",
             vec![
-                score.id.to_owned().into(),
                 score.correct.into(),
                 score.incorrect.into(),
-                score.date.to_owned().into(),
             ],
-            &vec![Where::new("id", Symbol::EQ, score.id.to_owned().into())]
+            &vec![
+                Where::new("id", Symbol::EQ, score.id.to_owned().into()),
+                Where::new("date", Symbol::EQ, date_to_str(score.date).into()),
+            ]
         )?;
         Ok(added)
     }

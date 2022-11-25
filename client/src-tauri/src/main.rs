@@ -18,7 +18,7 @@ use tauri::State;
 
 fn main() {
     TermLogger::init(
-        LevelFilter::Info,
+        LevelFilter::Debug,
         Config::default(),
         TerminalMode::Mixed,
         ColorChoice::Auto,
@@ -121,10 +121,13 @@ fn add_safmed_score(id: String, date: String, correct: i32, incorrect: i32, serv
     match service.add_score(&new_score) {
         Ok(_) => Ok(()),
         Err(error) => {
-            error!("{error}");
+            error!("failed to add {error}");
             match service.update_score(&new_score) {
                 Ok(_) => Ok(()),
-                Err(error) => Err(error.to_string()),
+                Err(error) => {
+                    error!("failed to update {error}");
+                    Err(error.to_string())
+                },
             }
         }
     }
