@@ -119,7 +119,13 @@ fn add_safmed_score(id: String, date: String, correct: i32, incorrect: i32, serv
     };
     match service.add_score(&new_score) {
         Ok(_) => Ok(()),
-        Err(error) => Err(error.to_string()),
+        Err(error) => {
+            error!("{error}");
+            match service.update_score(&new_score) {
+                Ok(_) => Ok(()),
+                Err(error) => Err(error.to_string()),
+            }
+        }
     }
 }
 
@@ -128,6 +134,5 @@ fn plot_safmed_scores(student_id: &str, service: State<Arc<SafmedScoreService>>)
     let plotter = SafmedPlotter::new(Arc::clone(&service));
     let mut buffer = String::new();
     plotter.plot(student_id, &mut buffer);
-    debug!("{}", &buffer);
     Ok(buffer)
 }

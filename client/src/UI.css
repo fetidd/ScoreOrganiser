@@ -1,9 +1,94 @@
+#root {
+    min-height: 98vh;
+    max-height: 98vh;
+}
+
 .UI {
     display: grid;
-    grid-template-columns: 1fr 3fr;
-    grid-template-rows: 1fr;
-    grid-template-areas: "student-list score-tabs"
+    grid-template-columns: 1fr 10px 3fr;
+    grid-template-rows: 98vh;
+    grid-template-areas: "student-list gap score-tabs";
+    min-height: 98vh;
+    max-height: 98vh;
 }
+
+/* StudentList */
+.StudentList {
+    grid-area: student-list;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+.StudentList #menubar {
+    display: flex;
+    justify-content: end;
+    padding: 5px;
+}
+
+.StudentList #list {
+    max-height: 90%;
+    overflow: scroll;
+    display: flex;
+    flex-direction: column;
+    scroll-snap-type: y mandatory;
+}
+
+.StudentList .studentrow {
+    padding: 5px;
+    scroll-snap-align: start;
+}
+
+.StudentList #import {
+    border: 2px solid greenyellow;
+    justify-self: end;
+}
+
+
+/* ScoreTabs */
+.ScoreTabs {
+    grid-area: score-tabs;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 15fr;
+    grid-template-areas: "tabs" "current-tab";
+}
+
+.ScoreTabs #tabs {
+    grid-area: tabs;
+}
+
+.ScoreTabs #tab-container {
+    grid-area: current-tab;
+    overflow: hidden;
+}
+
+.ScoreTabs #tab-container .tab {
+    min-height: 100%;
+    max-height: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 90% 10%;
+    grid-template-areas: "chart" "controls";
+}
+
+.chart {
+    grid-area: chart;
+    overflow-y: hidden;
+    overflow-x: scroll;
+}
+
+.controls{
+    padding: 5px;
+    grid-area: controls;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+
+
 
 
 

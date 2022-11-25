@@ -1,7 +1,6 @@
 import { Student } from "../types"
-import "../styles/StudentList.css"
 import { AddCircleRounded, EditRounded, DeleteRounded, RefreshRounded } from "@mui/icons-material";
-import { IconButton, List, ListItemButton, ListItemText, Paper } from "@mui/material";
+import { IconButton, List, ListItemButton, ListItemText, Paper, TextField } from "@mui/material";
 import { useState } from "react";
 import { AddStudentDialog, DeleteStudentDialog, EditStudentDialog } from "../components";
 
@@ -22,6 +21,7 @@ export function StudentList(p: Props) {
   let rows = p.students.map((st: Student) => {
     return (
       <ListItemButton
+        className={"studentrow"}
         key={st.id}
         selected={st === p.selectedStudent}
         onClick={() => p.selectStudent(st.id)}
@@ -49,9 +49,8 @@ export function StudentList(p: Props) {
 
   return (
     <>
-      <Paper elevation={3} className="StudentList">
-        <div id="menu">
-          {/* <h2 className="pane-header">Students</h2> */}
+    <Paper className="StudentList" elevation={3}>
+      <div id="menubar">
           <IconButton onClick={showAddStudentDialog}>
             <AddCircleRounded />
           </IconButton>
@@ -61,9 +60,10 @@ export function StudentList(p: Props) {
           <IconButton onClick={refreshStudents}>
             <RefreshRounded />
           </IconButton>
-        </div>
-        <List>{rows}</List>
-      </Paper>
+      </div>
+      <List id="list">{rows}</List>
+      <TextField id="import" type="file" />
+    </Paper>
       <AddStudentDialog
         isOpen={addStudentDialogIsOpen}
         setIsOpen={setAddStudentDialogIsOpen}

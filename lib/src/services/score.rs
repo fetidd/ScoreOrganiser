@@ -27,7 +27,7 @@ impl SafmedScoreService {
 
     pub fn add_score(&self, score: &SafmedScore) -> Result<usize> {
         log::debug!("adding score {score:?}");
-        let added = self.dao.insert(
+        match self.dao.insert(
             &score_fields(),
             "safmed",
             vec![
@@ -36,6 +36,24 @@ impl SafmedScoreService {
                 score.incorrect.into(),
                 score.date.to_owned().into(),
             ],
+        ) {
+            Ok(num) => Ok(num),
+            Err(e) => Err(e)
+        }
+    }
+
+    pub fn update_score(&self, score: &SafmedScore) -> Result<usize> {
+        log::debug!("updating score {score:?}");
+        let added = self.dao.update(
+            &score_fields(),
+            "safmed",
+            vec![
+                score.id.to_owned().into(),
+                score.correct.into(),
+                score.incorrect.into(),
+                score.date.to_owned().into(),
+            ],
+            &vec![Where::new("id", Symbol::EQ, score.id.to_owned().into())]
         )?;
         Ok(added)
     }

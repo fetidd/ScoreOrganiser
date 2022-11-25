@@ -19,8 +19,9 @@ pub const SCORE_SCHEMA: &str = "CREATE TABLE IF NOT EXISTS safmed (
     id TEXT NOT NULL,
     correct INTEGER NOT NULL,
     incorrect INTEGER NOT NULL,
-    date TEXT NOT NULL UNIQUE,
-    CONSTRAINT student_id FOREIGN KEY (id) REFERENCES student(id)
+    date TEXT NOT NULL,
+    CONSTRAINT student_id FOREIGN KEY (id) REFERENCES student(id),
+    UNIQUE(id,date)
 )";
 
 pub const SCORE_FIELDS: [&'static str; 4] = ["id", "correct", "incorrect", "date"];

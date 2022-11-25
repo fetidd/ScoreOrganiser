@@ -3,7 +3,6 @@ import useEnhancedEffect from "@mui/material/utils/useEnhancedEffect";
 import { Box } from "@mui/system";
 import { invoke } from "@tauri-apps/api";
 import { useEffect, useState } from "react";
-import "../styles/SafmedScores.css"
 import { Score, ScoreProps } from "../types";
 
 export default function SafmedScores(p: ScoreProps) {
@@ -51,8 +50,8 @@ export default function SafmedScores(p: ScoreProps) {
     }, [p.selectedStudent]);
 
     return (
-        <Box className="tab-container">
-            <Box id="safmed-chart" className="score-chart"></Box>
+        <Box className="tab">
+            <Box id="safmed-chart" className="chart"></Box>
             <Box className="controls">
                 <TextField id="correct" type="number" label="Correct" variant="outlined" value={correct} onChange={e => setCorrect(e.target.value)} />
                 <TextField id="incorrect" type="number" label="Incorrect" variant="outlined" value={incorrect} onChange={e => setIncorrect(e.target.value)} />

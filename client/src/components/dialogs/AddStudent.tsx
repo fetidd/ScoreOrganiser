@@ -1,7 +1,6 @@
 import { Paper, Dialog, TextField, Button, Box } from "@mui/material"
 import { useState } from "react"
 import { invoke } from "@tauri-apps/api"
-import "../../styles/AddStudent.css"
 
 export default function AddStudentDialog(p: Props) {
   const [entered, setEntered] = useState({

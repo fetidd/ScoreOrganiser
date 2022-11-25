@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use crate::errors::{Result, Error};
 use crate::services::SafmedScoreService;
-use chrono::{Duration, NaiveDateTime};
+use chrono::{Duration, NaiveDateTime, NaiveTime, Days};
 use plotters::prelude::*;
 
 pub trait Plotter {
@@ -21,29 +21,39 @@ impl SafmedPlotter {
 impl Plotter for SafmedPlotter {
     fn plot(&self, id: &str, mut buffer: &mut String) -> Result<()> {
         let scores = self.service.get_safmed_scores(&id)?;
-        if scores.len() < 1 {return Err(Error::NoScoresToPlot);};
-        let naive_datetimes: Vec<NaiveDateTime> = scores.iter().map(|s| s.date.and_hms_opt(0, 0, 0).unwrap()).collect();
-        let date_range: RangedDateTime<NaiveDateTime> = (naive_datetimes.first().unwrap().clone()..naive_datetimes.last().unwrap().clone()).into();
-        let correct: Vec<i64> = scores.iter().map(|s| s.correct as i64).collect();
-        let incorrect: Vec<i64> = scores.iter().map(|s| s.incorrect as i64).collect();
-        let correct_data: Vec<(NaiveDateTime, i64)> = naive_datetimes.clone().into_iter().zip(correct).collect();
-        let incorrect_data: Vec<(NaiveDateTime, i64)> = naive_datetimes.clone().into_iter().zip(incorrect).collect();
-
-        let root_area = SVGBackend::with_string(&mut buffer, (800, 800)).into_drawing_area();
+        let root_area = SVGBackend::with_string(&mut buffer, (900, 700)).into_drawing_area();
         root_area.fill(&WHITE).unwrap();
-
-        let mut ctx = ChartBuilder::on(&root_area)
+        if scores.len() >= 1 {
+            let mut naive_datetimes: Vec<NaiveDateTime> = scores.iter().map(|s| s.date.and_hms_opt(0, 0, 0).unwrap()).collect();
+            naive_datetimes.push(NaiveDateTime::new(
+                scores.last().unwrap().date.checked_add_days(Days::new(1)).unwrap(),
+                NaiveTime::from_hms_opt(0, 0, 0).unwrap()
+            ));
+            let date_range: RangedDateTime<NaiveDateTime> = (naive_datetimes.first().unwrap().clone()..naive_datetimes.last().unwrap().clone()).into();
+            let correct: Vec<i64> = scores.iter().map(|s| s.correct as i64).collect();
+            let incorrect: Vec<i64> = scores.iter().map(|s| s.incorrect as i64).collect();
+            let correct_data: Vec<(NaiveDateTime, i64)> = naive_datetimes.clone().into_iter().zip(correct).collect();
+            let incorrect_data: Vec<(NaiveDateTime, i64)> = naive_datetimes.clone().into_iter().zip(incorrect).collect();
+            let mut ctx = ChartBuilder::on(&root_area)
             .margin(50)
             .set_label_area_size(LabelAreaPosition::Left, 20)
             // .set_label_area_size(LabelAreaPosition::Bottom, 20)
             .build_cartesian_2d(date_range.step(Duration::days(1)), (1..100).log_scale())
             .unwrap();
-
-        ctx.configure_mesh().draw().unwrap();
-
-        ctx.draw_series(correct_data.into_iter().map(|point| {Circle::new(point, 8.0_f64, GREEN.filled())})).expect("failed drawing correct");
-        ctx.draw_series(incorrect_data.into_iter().map(|point| {Circle::new(point, 6.0_f64, RED.filled())})).expect("failed drawing incorrect");
-       Ok(())
+            ctx.configure_mesh().draw().unwrap();
+            ctx.draw_series(correct_data.into_iter().map(|point| {Circle::new(point, 8.0_f64, GREEN.filled())})).expect("failed drawing correct");
+            ctx.draw_series(incorrect_data.into_iter().map(|point| {Circle::new(point, 6.0_f64, RED.filled())})).expect("failed drawing incorrect");
+        } else {
+            // draw an empty plot
+            let mut ctx = ChartBuilder::on(&root_area)
+            .margin(50)
+            .set_label_area_size(LabelAreaPosition::Left, 20)
+            // .set_label_area_size(LabelAreaPosition::Bottom, 20)
+            .build_cartesian_2d(0_i32..1_i32, (1..100).log_scale())
+            .unwrap();
+            ctx.configure_mesh().draw().unwrap();
+        }
+        Ok(())
     }
 }
 
