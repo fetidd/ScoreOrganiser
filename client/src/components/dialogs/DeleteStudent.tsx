@@ -29,7 +29,6 @@ export default function DeleteStudentDialog(p: Props) {
         <Dialog
             open={true}
             onClose={(_event, reason) => {
-                console.log(`closing because ${reason}`);
                 p.setStudentToDelete(null)
             }}
         >

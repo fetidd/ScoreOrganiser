@@ -18,7 +18,7 @@ use tauri::State;
 
 fn main() {
     TermLogger::init(
-        LevelFilter::Debug,
+        LevelFilter::Info,
         Config::default(),
         TerminalMode::Mixed,
         ColorChoice::Auto,
@@ -47,7 +47,8 @@ fn main() {
             delete_student,
             edit_student,
             add_safmed_score,
-            plot_safmed_scores
+            plot_safmed_scores,
+            import_csv
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -135,4 +136,16 @@ fn plot_safmed_scores(student_id: &str, service: State<Arc<SafmedScoreService>>)
     let mut buffer = String::new();
     plotter.plot(student_id, &mut buffer);
     Ok(buffer)
+}
+
+#[tauri::command]
+fn import_csv(file: &str, importer: State<Importer>) -> Result<(), String> {
+    debug!("importing {file}");
+    match importer.import(file) {
+        Ok(_) => Ok(()),
+        Err(error) => {
+            error!("{error}");
+            Err(error.to_string())
+        },
+    }
 }

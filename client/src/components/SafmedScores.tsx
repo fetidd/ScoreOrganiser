@@ -37,7 +37,6 @@ export default function SafmedScores(p: ScoreProps) {
     const showPlot = () => {
         invoke("plot_safmed_scores", {studentId: p.selectedStudent!.id})
             .then((res) => {
-                console.log(res)
                 document.querySelector("#safmed-chart")!.innerHTML = res as string
             })
             .catch(err => {

@@ -22,9 +22,6 @@ fn setup(mut sqls: Vec<String>, file_path: &str) -> StudentService {
 
 #[test]
 fn test_import() {
-    let csv_path = format!("{}.csv", function_name!());
-    let db_path = format!("{}.sqlite", function_name!());
-    let mut csv_file = File::create(&csv_path).expect("failed to create test csv file");
     let csv_data = "\
 first_names,last_name,date_of_birth,2021-02-01,2021-02-02,2021-02-03
 Ben,Jones,1990-01-23,89/23,78/21,90/12

@@ -12,7 +12,6 @@ export default function EditStudentDialog(p: Props) {
 
 
   function editStudent() {
-    console.log(`EDITING ${entered.firstNames} ${entered.lastName} ${entered.dateOfBirth}`);
     let first = entered.firstNames.trim();
     let last = entered.lastName.trim();
     let dob = entered.dateOfBirth.trim();
@@ -35,7 +34,6 @@ export default function EditStudentDialog(p: Props) {
     <Dialog
       open={true}
       onClose={(_event, reason) => {
-        console.log(`closing because ${reason}`);
         p.setStudentToEdit(null)
       }}
     >

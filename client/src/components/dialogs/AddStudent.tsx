@@ -10,7 +10,6 @@ export default function AddStudentDialog(p: Props) {
   });
 
   function addStudent() {
-    console.log(`ADDING ${entered.firstNames} ${entered.lastName} ${entered.dateOfBirth}`);
     let first = entered.firstNames.trim();
     let last = entered.lastName.trim();
     let dob = entered.dateOfBirth.trim();

@@ -118,9 +118,8 @@ impl Importer {
         }
     }
 
-    pub fn import(&self, filename: &str) -> Result<(usize, usize)> {
-        log::debug!("importing from {filename}");
-        let mut reader = Reader::from_path(filename)?;
+    pub fn import(&self, data: &str) -> Result<(usize, usize)> {
+        let mut reader = Reader::from_reader(data.as_bytes());
         let headers = reader.headers()?.clone();
         let dates: Vec<&str> = headers.into_iter().skip(3).collect();
         let records = reader.records();
