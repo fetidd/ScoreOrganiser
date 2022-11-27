@@ -42,7 +42,7 @@ impl Importer {
     }
 
     fn parse_score(score_record: (&str, &str)) -> Result<Option<(i32, i32, String)>> {
-        let mut scores: Vec<&str> = score_record
+        let scores: Vec<&str> = score_record
             .0
             .split("/")
             .map(|s: &str| {
@@ -51,13 +51,14 @@ impl Importer {
             .collect();
         match scores.as_slice() {
             [correct, incorrect] => {
-                let parsed: Result<Vec<i32>> = vec![correct, incorrect]
+                let parsed: std::result::Result<Vec<i32>, std::num::ParseIntError> = vec![correct, incorrect]
                     .iter()
                     .map(|s| s.parse::<i32>())
                     .collect();
-                if parsed.is_err() {
-                    return parsed;
-                }
+                let mut parsed_scores = match parsed {
+                    Ok(parsed_scores) => parsed_scores,
+                    Err(error) => return Err(Error::from(error))
+                };
                 let date = score_record.1.trim().to_owned();
                 if !validate_date(&date) {
                     return Err(Error::ImporterError(format!(
@@ -65,8 +66,7 @@ impl Importer {
                         &date
                     )));
                 }
-                let parsed = parsed.unwrap(); // we know its safe
-                Ok(Some((parsed.remove(0), parsed.remove(0), date.to_string())))
+                Ok(Some((parsed_scores.remove(0), parsed_scores.remove(0), date.to_string())))
             },
             [x] if x.is_empty() => {
                 Ok(None)
