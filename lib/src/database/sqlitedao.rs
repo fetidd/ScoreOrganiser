@@ -1,11 +1,12 @@
-use std::{sync::Mutex, path::PathBuf};
+use std::{path::PathBuf, sync::Mutex};
 
 use crate::constant::ENABLE_FOREIGN_KEYS;
 use crate::database::{Dao, Record, Value, Where};
 use crate::errors::{Error, Result};
 
-use rusqlite::Connection;
 use dirs::data_dir;
+use log::*;
+use rusqlite::Connection;
 
 pub struct SqliteDao {
     pub conn: Mutex<Connection>,
@@ -16,6 +17,11 @@ impl SqliteDao {
     pub fn new() -> SqliteDao {
         let dir = data_dir().expect("failed to get data directory");
         let mut db_path = PathBuf::from(dir);
+        db_path.push("scorg");
+        match std::fs::create_dir(&db_path) {
+            Ok(_) => debug!("created new data directory"),
+            Err(err) => error!("failed to create data directory: {err}"),
+        };
         db_path.push(crate::constant::DB_FILE);
         SqliteDao::using_file(db_path.as_os_str().to_str().unwrap())
     }
@@ -35,8 +41,6 @@ impl SqliteDao {
             }
         }
     }
-
-    
 }
 
 impl Dao for SqliteDao {
@@ -77,9 +81,15 @@ impl Dao for SqliteDao {
         Ok(records)
     }
 
-    fn insert(&self, fields: &Vec<String>, table: &str, args: Vec<Value>) -> Result<usize> {
+    fn insert(
+        &self,
+        fields: &Vec<String>,
+        table: &str,
+        args: Vec<Value>,
+        replace: bool,
+    ) -> Result<usize> {
         let conn = self.conn.lock().expect("Failed to get lock on connection");
-        let sql_string = insert_string(fields, table, args.len())?;
+        let sql_string = insert_string(fields, table, args.len(), replace)?;
         log::debug!("{} [{:?}]", &sql_string, &args);
         match conn.execute(&sql_string, rusqlite::params_from_iter(&mut args.iter())) {
             Ok(n) => Ok(n),
@@ -171,7 +181,7 @@ fn select_string(fields: &Vec<String>, table: &str) -> String {
     format!("SELECT {field_string} FROM {table}")
 }
 
-fn insert_string(fields: &Vec<String>, table: &str, args: usize) -> Result<String> {
+fn insert_string(fields: &Vec<String>, table: &str, args: usize, replace: bool) -> Result<String> {
     let field_string = fields.clone().join(",");
     let num_fields = fields.len();
     let value_string: String = match num_fields {
@@ -204,8 +214,12 @@ fn insert_string(fields: &Vec<String>, table: &str, args: usize) -> Result<Strin
             ))
         }
     };
+    let replace = match replace {
+        true => "OR REPLACE ",
+        false => "",
+    };
     Ok(format!(
-        "INSERT INTO {table} ({field_string}) VALUES {value_string}"
+        "INSERT {replace}INTO {table} ({field_string}) VALUES {value_string}"
     ))
 }
 
@@ -315,7 +329,7 @@ mod tests {
         let dao = mock();
         let fields = vec!["field1".into(), "field2".into()];
         let args = vec![Value::from(99), Value::from("inserted")];
-        let res = dao.insert(&fields, "test", args);
+        let res = dao.insert(&fields, "test", args, false);
         assert_matches!(res, Ok(_));
         let w = vec![Where::new("field1", Symbol::EQ, Value::from(99))];
         let db_check = dao.select(&vec!["field1".into(), "field2".into()], "test", &w);
@@ -333,7 +347,7 @@ mod tests {
         let dao = mock();
         let fields = vec!["field1".into(), "bad".into()];
         let args = vec![Value::from(99), Value::from("inserted")];
-        let err = dao.insert(&fields, "test", args);
+        let err = dao.insert(&fields, "test", args, false);
         assert_matches!(&err, Err(Error::DbError(_)));
         match err {
             Err(Error::DbError(ms)) => assert_eq!(ms, "table test has no column named bad"),
@@ -466,6 +480,7 @@ mod tests {
             (
                 vec!["field1".into(), "field2".into()],
                 2,
+                false,
                 Ok("INSERT INTO test (field1,field2) VALUES ($1,$2)".into()),
             ),
             (
@@ -476,23 +491,32 @@ mod tests {
                     "field4".into(),
                 ],
                 4,
+                false,
                 Ok("INSERT INTO test (field1,field2,field3,field4) VALUES ($1,$2,$3,$4)".into()),
             ),
             (
                 vec!["field1".into(), "field2".into()],
                 4,
+                false,
                 Ok("INSERT INTO test (field1,field2) VALUES ($1,$2),($3,$4)".into()),
             ),
             (
                 vec!["field1".into(), "field2".into()],
                 7,
+                false,
                 Err(Error::DbError(
                     "number of args doesn't work with number of records".into(),
                 )),
             ),
+            (
+                vec!["field1".into()],
+                1,
+                true,
+                Ok("INSERT OR REPLACE INTO test (field1) VALUES ($1)".into()),
+            ),
         ];
-        for (fields, num_args, exp) in tests {
-            let act = insert_string(&fields, "test", num_args);
+        for (fields, num_args, replace, exp) in tests {
+            let act = insert_string(&fields, "test", num_args, replace);
             assert_eq!(exp, act);
         }
     }

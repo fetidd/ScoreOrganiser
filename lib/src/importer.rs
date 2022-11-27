@@ -2,20 +2,26 @@ use std::sync::Arc;
 
 use crate::errors::{Error, Result};
 use crate::models::{SafmedScore, Student};
-use crate::services::{StudentService, SafmedScoreService};
+use crate::services::{SafmedScoreService, StudentService};
 use crate::useful::*;
 use csv::{Reader, StringRecord};
 
 pub struct Importer {
     student_service: Arc<StudentService>,
-    score_service: Arc<SafmedScoreService>
+    score_service: Arc<SafmedScoreService>,
 }
 use log::*;
 
 impl Importer {
-    pub fn new(student_service: Arc<StudentService>, score_service: Arc<SafmedScoreService>) -> Importer {
+    pub fn new(
+        student_service: Arc<StudentService>,
+        score_service: Arc<SafmedScoreService>,
+    ) -> Importer {
         log::debug!("created new Importer");
-        Importer { student_service, score_service }
+        Importer {
+            student_service,
+            score_service,
+        }
     }
 
     fn parse_scores(record: Vec<&str>, id: &str, dates: Vec<&str>) -> Result<Vec<SafmedScore>> {
@@ -26,7 +32,7 @@ impl Importer {
             .collect();
         let parsed_scores = match parsed_scores {
             Err(err) => return Err(err),
-            Ok(parsed_scores) => parsed_scores
+            Ok(parsed_scores) => parsed_scores,
         };
         let mut scores = vec![];
         for score in parsed_scores {
@@ -34,30 +40,25 @@ impl Importer {
                 Some(sc) => {
                     let new_score = SafmedScore::new(id, sc.0, sc.1, &sc.2)?;
                     scores.push(new_score);
-                },
-                None => continue
+                }
+                None => continue,
             };
         }
         Ok(scores)
     }
 
     fn parse_score(score_record: (&str, &str)) -> Result<Option<(i32, i32, String)>> {
-        let scores: Vec<&str> = score_record
-            .0
-            .split("/")
-            .map(|s: &str| {
-                s.trim()
-            })
-            .collect();
+        let scores: Vec<&str> = score_record.0.split("/").map(|s: &str| s.trim()).collect();
         match scores.as_slice() {
             [correct, incorrect] => {
-                let parsed: std::result::Result<Vec<i32>, std::num::ParseIntError> = vec![correct, incorrect]
-                    .iter()
-                    .map(|s| s.parse::<i32>())
-                    .collect();
+                let parsed: std::result::Result<Vec<i32>, std::num::ParseIntError> =
+                    vec![correct, incorrect]
+                        .iter()
+                        .map(|s| s.parse::<i32>())
+                        .collect();
                 let mut parsed_scores = match parsed {
                     Ok(parsed_scores) => parsed_scores,
-                    Err(error) => return Err(Error::from(error))
+                    Err(error) => return Err(Error::from(error)),
                 };
                 let date = score_record.1.trim().to_owned();
                 if !validate_date(&date) {
@@ -66,14 +67,16 @@ impl Importer {
                         &date
                     )));
                 }
-                Ok(Some((parsed_scores.remove(0), parsed_scores.remove(0), date.to_string())))
-            },
-            [x] if x.is_empty() => {
-                Ok(None)
-            },
+                Ok(Some((
+                    parsed_scores.remove(0),
+                    parsed_scores.remove(0),
+                    date.to_string(),
+                )))
+            }
+            [x] if x.is_empty() => Ok(None),
             _ => Err(Error::ImporterError(
                 "must provide 2 scores per date".into(),
-            ))
+            )),
         }
     }
 
@@ -117,7 +120,10 @@ impl Importer {
         last_name: &str,
         dob: &str,
     ) -> Result<(String, Option<Student>)> {
-        match self.student_service.get_id_for_name(&first_names, &last_name) {
+        match self
+            .student_service
+            .get_id_for_name(&first_names, &last_name)
+        {
             // if there is one, just get it's id
             Ok(id) => Ok((id, None)),
             // add the student to students_to_add and get its id if not
@@ -149,14 +155,18 @@ impl Importer {
             let scores = Self::parse_scores(scores_in_record, &id, dates.clone())?;
             scores_to_add.extend(scores);
         }
-        debug!("adding {} new students", &students_to_add.len());
-        let students_added = self.student_service.add_students(&students_to_add)?;
-        debug!("adding {} scores", &scores_to_add.len());
-        let scores_added = self.score_service.add_scores(&scores_to_add)?;
+        let (mut students_added, mut scores_added) = (0, 0);
+        if students_to_add.len() > 0_usize {
+            debug!("adding {} new students", &students_to_add.len());
+            students_added = self.student_service.add_students(&students_to_add)?;
+        }
+        if scores_to_add.len() > 0 {
+            debug!("adding {} scores", &scores_to_add.len());
+            scores_added = self.score_service.add_scores(&scores_to_add)?;
+        }
         debug!(
             "added {} students and {} scores",
-            students_added,
-            scores_added
+            students_added, scores_added
         );
         Ok((students_added, scores_added))
     }
@@ -165,13 +175,16 @@ impl Importer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::database::{dao::MockDao, Value, Dao};
+    use crate::database::{dao::MockDao, Dao, Value};
     use std::collections::HashMap;
 
     #[test]
     fn test_parse_score() {
         let tests: Vec<((&str, &str), Result<Option<(i32, i32, String)>>)> = vec![
-            (("89/12", "2021-01-01"), Ok(Some((89, 12, "2021-01-01".into())))),
+            (
+                ("89/12", "2021-01-01"),
+                Ok(Some((89, 12, "2021-01-01".into()))),
+            ),
             (
                 (" 89/12 ", "2021-01-01 "),
                 Ok(Some((89, 12, "2021-01-01".into()))),

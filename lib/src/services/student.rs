@@ -94,6 +94,7 @@ impl StudentService {
                 student.last_name.clone().into(),
                 student.date_of_birth.clone().into(),
             ],
+            false,
         )
     }
 
@@ -106,7 +107,7 @@ impl StudentService {
             args.push(student.last_name.clone().into());
             args.push(student.date_of_birth.to_owned().into());
         }
-        let added = self.dao.insert(&student_fields(), "student", args)?;
+        let added = self.dao.insert(&student_fields(), "student", args, false)?;
         Ok(added)
     }
 
@@ -120,8 +121,15 @@ impl StudentService {
     pub fn update_student(&self, update: &Student) -> Result<usize> {
         log::debug!("updating student with id {}", update.id);
         let wheres = vec![Where::new("id", Symbol::EQ, Value::from(update.id.clone()))];
-        let args = vec![update.id.clone().into(), update.first_names.clone().into(), update.last_name.clone().into(), date_to_str(update.date_of_birth).into()];
-        let updated = self.dao.update(&student_fields(), "student", args, &wheres)?;
+        let args = vec![
+            update.id.clone().into(),
+            update.first_names.clone().into(),
+            update.last_name.clone().into(),
+            date_to_str(update.date_of_birth).into(),
+        ];
+        let updated = self
+            .dao
+            .update(&student_fields(), "student", args, &wheres)?;
         Ok(updated)
     }
 }
@@ -133,8 +141,6 @@ fn student_fields() -> Vec<String> {
         .map(|x| x.to_string())
         .collect()
 }
-
-
 
 // #################
 // ##### TESTS #####
@@ -269,7 +275,7 @@ mod tests {
             date_of_birth: date_from_str("1990-01-23").unwrap(),
         };
         dao.expect_insert()
-            .withf(move |f, t, args| {
+            .withf(move |f, t, args, _| {
                 *f == student_fields()
                     && t == "student"
                     && *args
@@ -281,7 +287,7 @@ mod tests {
                         ]
             })
             .times(1)
-            .returning(move |_, _, _| Ok(1));
+            .returning(move |_, _, _, _| Ok(1));
         let ss = StudentService::new(Arc::new(dao));
         assert_eq!(Ok(1), ss.add_student(&student));
     }
@@ -304,7 +310,7 @@ mod tests {
             },
         ];
         dao.expect_insert()
-            .withf(move |f, t, args| {
+            .withf(move |f, t, args, _| {
                 *f == student_fields()
                     && t == "student"
                     && *args
@@ -320,12 +326,10 @@ mod tests {
                         ]
             })
             .times(1)
-            .returning(move |_, _, _| Ok(2));
+            .returning(move |_, _, _, _| Ok(2));
         let ss = StudentService::new(Arc::new(dao));
         assert_eq!(Ok(2), ss.add_students(&students));
     }
-
-    
 
     #[test]
     fn test_delete_student() {
@@ -346,23 +350,25 @@ mod tests {
             id: "st1".into(),
             first_names: "Ben".into(),
             last_name: "Jones".into(),
-            date_of_birth: date_from_str("1990-01-23").unwrap()
+            date_of_birth: date_from_str("1990-01-23").unwrap(),
         };
         let mut dao = MockDao::new();
         dao.expect_update()
             .withf(move |fields, table, args, wheres| {
-                *fields == student_fields() &&
-                table == "student" &&
-                *args == vec!["st1".into(), "Ben".into(), "Jones".into(), date_to_str(update.date_of_birth).into()] &&
-                *wheres == vec![Where::new("id", Symbol::EQ, "st1".into())]
+                *fields == student_fields()
+                    && table == "student"
+                    && *args
+                        == vec![
+                            "st1".into(),
+                            "Ben".into(),
+                            "Jones".into(),
+                            date_to_str(update.date_of_birth).into(),
+                        ]
+                    && *wheres == vec![Where::new("id", Symbol::EQ, "st1".into())]
             })
             .times(1)
-            .returning(move |_,_,_,_| {
-                Ok(1)
-            });
+            .returning(move |_, _, _, _| Ok(1));
         let ss = StudentService::new(Arc::new(dao));
         assert_eq!(Ok(1), ss.update_student(&update));
     }
-
-    
 }

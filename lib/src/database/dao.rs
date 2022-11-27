@@ -9,7 +9,13 @@ pub trait Dao: Send + Sync {
     fn init(&self) -> Result<()>;
     fn select(&self, fields: &Vec<String>, table: &str, wheres: &Vec<Where>)
         -> Result<Vec<Record>>;
-    fn insert(&self, fields: &Vec<String>, table: &str, args: Vec<Value>) -> Result<usize>;
+    fn insert(
+        &self,
+        fields: &Vec<String>,
+        table: &str,
+        args: Vec<Value>,
+        replace: bool,
+    ) -> Result<usize>;
     fn update(
         &self,
         fields: &Vec<String>,

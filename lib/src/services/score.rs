@@ -2,18 +2,18 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use crate::constant::{SCORE_FIELDS, SCORE_SCHEMA};
-use crate::database::{Where, Symbol, Dao};
+use crate::database::{Dao, Symbol, Where};
 use crate::errors::Result;
 use crate::models::SafmedScore;
 use crate::useful::date_to_str;
 
 pub struct SafmedScoreService {
-    dao: Arc<dyn Dao>
+    dao: Arc<dyn Dao>,
 }
 
 impl SafmedScoreService {
     pub fn new(dao: Arc<dyn Dao>) -> Self {
-        Self {dao}
+        Self { dao }
     }
 
     pub fn init(&self) -> Result<()> {
@@ -37,9 +37,10 @@ impl SafmedScoreService {
                 score.incorrect.into(),
                 score.date.to_owned().into(),
             ],
+            true,
         ) {
             Ok(num) => Ok(num),
-            Err(e) => Err(e)
+            Err(e) => Err(e),
         }
     }
 
@@ -48,14 +49,11 @@ impl SafmedScoreService {
         let added = self.dao.update(
             &vec!["correct".into(), "incorrect".into()],
             "safmed",
-            vec![
-                score.correct.into(),
-                score.incorrect.into(),
-            ],
+            vec![score.correct.into(), score.incorrect.into()],
             &vec![
                 Where::new("id", Symbol::EQ, score.id.to_owned().into()),
                 Where::new("date", Symbol::EQ, date_to_str(score.date).into()),
-            ]
+            ],
         )?;
         Ok(added)
     }
@@ -82,12 +80,16 @@ impl SafmedScoreService {
                 }
             };
         }
-        let added = self.dao.insert(&score_fields(), "safmed", args)?;
+        let added = self.dao.insert(&score_fields(), "safmed", args, true)?;
         Ok(added)
     }
 
     pub fn get_safmed_scores(&self, id: &str) -> Result<Vec<SafmedScore>> {
-        let records = self.dao.select(&score_fields(), "safmed", &vec![Where::new("id", Symbol::EQ, id.into())]);
+        let records = self.dao.select(
+            &score_fields(),
+            "safmed",
+            &vec![Where::new("id", Symbol::EQ, id.into())],
+        );
         let mut score_vec = Vec::new();
         for score_record in records? {
             let score = match SafmedScore::try_from(score_record) {
@@ -95,12 +97,13 @@ impl SafmedScoreService {
                 Err(e) => return Err(e),
             };
             score_vec.push(score);
-        };
+        }
         Ok(score_vec)
     }
 
     pub fn delete_scores(&self, id: &str) -> Result<usize> {
-        self.dao.delete("safmed", &vec![Where::new("id", Symbol::EQ, id.into())])
+        self.dao
+            .delete("safmed", &vec![Where::new("id", Symbol::EQ, id.into())])
     }
 }
 
@@ -114,22 +117,26 @@ fn score_fields() -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{database::{dao::MockDao, Record}, useful::date_from_str};
+    use crate::{
+        database::{dao::MockDao, Record},
+        useful::date_from_str,
+    };
 
     use super::*;
-    
+
     #[test]
     fn test_add_score() {
         let mut dao = MockDao::new();
         let score = SafmedScore::new("st1".into(), 99, 11, "2022-01-01".into()).unwrap();
         dao.expect_insert()
-            .withf(move |f, t, args| {
+            .withf(move |f, t, args, rep| {
                 *f == score_fields()
                     && t == "safmed"
                     && *args == vec!["st1".into(), 99.into(), 11.into(), "2022-01-01".into()]
+                    && *rep == true
             })
             .times(1)
-            .returning(move |_, _, _| Ok(1));
+            .returning(move |_, _, _, _| Ok(1));
         let ss = SafmedScoreService::new(Arc::new(dao));
         assert_eq!(Ok(1), ss.add_score(&score));
     }
@@ -142,7 +149,7 @@ mod tests {
             SafmedScore::new("st1".into(), 87, 8, "2022-01-02".into()).unwrap(),
         ];
         dao.expect_insert()
-            .withf(move |f, t, args| {
+            .withf(move |f, t, args, rep| {
                 *f == score_fields()
                     && t == "safmed"
                     && *args
@@ -156,9 +163,10 @@ mod tests {
                             8.into(),
                             "2022-01-02".into(),
                         ]
+                    && *rep == true
             })
             .times(1)
-            .returning(move |_, _, _| Ok(2));
+            .returning(move |_, _, _, _| Ok(2));
         let ss = SafmedScoreService::new(Arc::new(dao));
         assert_eq!(Ok(2), ss.add_scores(&scores));
     }
@@ -173,7 +181,7 @@ mod tests {
             SafmedScore::new("st3".into(), 87, 8, "2022-01-02".into()).unwrap(),
         ];
         dao.expect_insert()
-            .withf(move |fields, table, args| {
+            .withf(move |fields, table, args, rep| {
                 *fields == score_fields()
                     && table == "safmed"
                     && *args
@@ -195,9 +203,10 @@ mod tests {
                             8.into(),
                             "2022-01-02".into(),
                         ]
+                    && *rep == true
             })
             .times(1)
-            .returning(move |_, _, _| Ok(4));
+            .returning(move |_, _, _, _| Ok(4));
         let ss = SafmedScoreService::new(Arc::new(dao));
         assert_eq!(Ok(4), ss.add_scores(&scores));
     }
@@ -205,18 +214,55 @@ mod tests {
     #[test]
     fn test_get_safmed_scores() {
         let mut dao = MockDao::new();
-        dao.expect_select().withf(move |_,table,_| table=="safmed").times(1).returning(move |_,_,_| {
-            Ok(vec![
-                Record::from([("id".into(), "st1".into()), ("correct".into(), 89.into()), ("incorrect".into(), 19.into()), ("date".into(), date_from_str("2021-01-01").unwrap().into())]),
-                Record::from([("id".into(), "st1".into()), ("correct".into(), 89.into()), ("incorrect".into(), 19.into()), ("date".into(), date_from_str("2021-01-02").unwrap().into())]),
-                Record::from([("id".into(), "st1".into()), ("correct".into(), 89.into()), ("incorrect".into(), 19.into()), ("date".into(), date_from_str("2021-01-03").unwrap().into())]),
-            ])
-        });
+        dao.expect_select()
+            .withf(move |_, table, _| table == "safmed")
+            .times(1)
+            .returning(move |_, _, _| {
+                Ok(vec![
+                    Record::from([
+                        ("id".into(), "st1".into()),
+                        ("correct".into(), 89.into()),
+                        ("incorrect".into(), 19.into()),
+                        ("date".into(), date_from_str("2021-01-01").unwrap().into()),
+                    ]),
+                    Record::from([
+                        ("id".into(), "st1".into()),
+                        ("correct".into(), 89.into()),
+                        ("incorrect".into(), 19.into()),
+                        ("date".into(), date_from_str("2021-01-02").unwrap().into()),
+                    ]),
+                    Record::from([
+                        ("id".into(), "st1".into()),
+                        ("correct".into(), 89.into()),
+                        ("incorrect".into(), 19.into()),
+                        ("date".into(), date_from_str("2021-01-03").unwrap().into()),
+                    ]),
+                ])
+            });
         let ss = SafmedScoreService::new(Arc::new(dao));
-        assert_eq!(ss.get_safmed_scores("st1"), Ok(vec![
-            SafmedScore{id: "st1".into(), correct: 89.into(), incorrect: 19.into(), date: date_from_str("2021-01-01").unwrap()},
-            SafmedScore{id: "st1".into(), correct: 89.into(), incorrect: 19.into(), date: date_from_str("2021-01-02").unwrap()},
-            SafmedScore{id: "st1".into(), correct: 89.into(), incorrect: 19.into(), date: date_from_str("2021-01-03").unwrap()},
-        ]));
+        assert_eq!(
+            ss.get_safmed_scores("st1"),
+            Ok(vec![
+                SafmedScore {
+                    id: "st1".into(),
+                    correct: 89.into(),
+                    incorrect: 19.into(),
+                    date: date_from_str("2021-01-01").unwrap()
+                },
+                SafmedScore {
+                    id: "st1".into(),
+                    correct: 89.into(),
+                    incorrect: 19.into(),
+                    date: date_from_str("2021-01-02").unwrap()
+                },
+                SafmedScore {
+                    id: "st1".into(),
+                    correct: 89.into(),
+                    incorrect: 19.into(),
+                    date: date_from_str("2021-01-03").unwrap()
+                },
+            ])
+        );
     }
 }
+
