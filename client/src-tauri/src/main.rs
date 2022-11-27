@@ -8,9 +8,9 @@ use scorg_lib::{
     constant::DB_FILE,
     database::{Dao, SqliteDao},
     importer::Importer,
-    models::{Student, SafmedScore},
-    services::{StudentService, SafmedScoreService},
-    plotter::{SafmedPlotter, Plotter}
+    models::{SafmedScore, Student},
+    plotter::{Plotter, SafmedPlotter},
+    services::{SafmedScoreService, StudentService},
 };
 use simplelog::{ColorChoice, Config, LevelFilter, TermLogger, TerminalMode};
 use std::sync::Arc;
@@ -86,12 +86,16 @@ fn add_student(
 }
 
 #[tauri::command]
-fn delete_student(id: String, students: State<Arc<StudentService>>, scores: State<Arc<SafmedScoreService>>) -> Result<(), String> {
+fn delete_student(
+    id: String,
+    students: State<Arc<StudentService>>,
+    scores: State<Arc<SafmedScoreService>>,
+) -> Result<(), String> {
     match scores.delete_scores(&id) {
         Ok(num) => debug!("deleted {num} scores"),
         Err(error) => {
             error!("{}", error);
-            return Err(error.to_string())
+            return Err(error.to_string());
         }
     };
     match students.delete_student(&id) {
@@ -113,28 +117,28 @@ fn edit_student(update: Student, service: State<Arc<StudentService>>) -> Result<
 
 // SCORE COMMANDS
 #[tauri::command]
-fn add_safmed_score(id: String, date: String, correct: i32, incorrect: i32, service: State<Arc<SafmedScoreService>>) -> Result<(), String> {
+fn add_safmed_score(
+    id: String,
+    date: String,
+    correct: i32,
+    incorrect: i32,
+    service: State<Arc<SafmedScoreService>>,
+) -> Result<(), String> {
     let new_score = match SafmedScore::new(&id, correct, incorrect, &date) {
         Ok(score) => score,
         Err(error) => return Err(error.to_string()),
     };
     match service.add_score(&new_score) {
         Ok(_) => Ok(()),
-        Err(error) => {
-            error!("failed to add {error}");
-            match service.update_score(&new_score) {
-                Ok(_) => Ok(()),
-                Err(error) => {
-                    error!("failed to update {error}");
-                    Err(error.to_string())
-                },
-            }
-        }
+        Err(error.to_string())
     }
 }
 
 #[tauri::command]
-fn plot_safmed_scores(student_id: &str, service: State<Arc<SafmedScoreService>>) -> Result<String, String> {
+fn plot_safmed_scores(
+    student_id: &str,
+    service: State<Arc<SafmedScoreService>>,
+) -> Result<String, String> {
     let plotter = SafmedPlotter::new(Arc::clone(&service));
     let mut buffer = String::new();
     plotter.plot(student_id, &mut buffer);
@@ -149,6 +153,6 @@ fn import_csv(file: &str, importer: State<Importer>) -> Result<(), String> {
         Err(error) => {
             error!("{error}");
             Err(error.to_string())
-        },
+        }
     }
 }
