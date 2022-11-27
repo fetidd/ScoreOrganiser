@@ -336,12 +336,6 @@ mod tests {
             })
             .times(1)
             .returning(move |_, _| Ok(1));
-        dao.expect_delete()
-            .withf(move |table, wheres| {
-                table == "score" && *wheres == vec![Where::new("id", Symbol::EQ, "st1".into())]
-            })
-            .times(1)
-            .returning(move |_, _| Ok(1));
         let ss = StudentService::new(Arc::new(dao));
         assert_eq!(Ok(1), ss.delete_student("st1"));
     }

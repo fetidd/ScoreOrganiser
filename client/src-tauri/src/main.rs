@@ -26,7 +26,7 @@ fn main() {
     .expect("failed to init logging");
     info!("setting up backend services...");
     debug!("creating and initialising DAO");
-    let dao: Arc<dyn Dao> = Arc::new(SqliteDao::new(DB_FILE));
+    let dao: Arc<dyn Dao> = Arc::new(SqliteDao::new());
     dao.init().expect("failed to init sqlite database");
     debug!("creating and initialising STUDENT SERVICE");
     let students = Arc::new(StudentService::new(Arc::clone(&dao)));

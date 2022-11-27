@@ -1,10 +1,11 @@
-use std::sync::Mutex;
+use std::{sync::Mutex, path::PathBuf};
 
 use crate::constant::ENABLE_FOREIGN_KEYS;
 use crate::database::{Dao, Record, Value, Where};
 use crate::errors::{Error, Result};
 
 use rusqlite::Connection;
+use dirs::data_dir;
 
 pub struct SqliteDao {
     pub conn: Mutex<Connection>,
@@ -12,7 +13,14 @@ pub struct SqliteDao {
 
 // Panics if can't create sqlx Pool as without that the program is useless
 impl SqliteDao {
-    pub fn new(file_path: &str) -> SqliteDao {
+    pub fn new() -> SqliteDao {
+        let dir = data_dir().expect("failed to get data directory");
+        let mut db_path = PathBuf::from(dir);
+        db_path.push(crate::constant::DB_FILE);
+        SqliteDao::using_file(db_path.as_os_str().to_str().unwrap())
+    }
+
+    pub fn using_file(file_path: &str) -> SqliteDao {
         let conn = Connection::open(file_path);
         match conn {
             Ok(conn) => {

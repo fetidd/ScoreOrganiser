@@ -6,19 +6,6 @@ use regex::Regex;
 use std::fs::{create_dir, read_dir, write};
 use std::thread::sleep;
 
-pub fn init_files() {
-    let mut config_dir = match read_dir(CONFIG_PATH) {
-        Err(_) => {
-            create_dir(CONFIG_PATH).expect("failed creating config dir");
-            read_dir(CONFIG_PATH).unwrap()
-        }
-        Ok(dir) => dir,
-    };
-    if !config_dir.any(|f| f.expect("not a file?").file_name() == DB_FILE) {
-        write(&format!("{}{}", CONFIG_PATH, DB_FILE), "").expect("failed to create db file");
-    };
-}
-
 pub fn date_to_str(d: NaiveDate) -> String {
     d.format("%Y-%m-%d").to_string()
 }

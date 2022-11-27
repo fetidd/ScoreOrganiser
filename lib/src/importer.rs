@@ -10,6 +10,7 @@ pub struct Importer {
     student_service: Arc<StudentService>,
     score_service: Arc<SafmedScoreService>
 }
+use log::*;
 
 impl Importer {
     pub fn new(student_service: Arc<StudentService>, score_service: Arc<SafmedScoreService>) -> Importer {
@@ -18,51 +19,61 @@ impl Importer {
     }
 
     fn parse_scores(record: Vec<&str>, id: &str, dates: Vec<&str>) -> Result<Vec<SafmedScore>> {
-        let parsed_scores: Vec<Result<(i32, i32, String)>> = record
+        let parsed_scores: Result<Vec<Option<(i32, i32, String)>>> = record
             .into_iter()
             .zip(dates)
             .map(Self::parse_score)
             .collect();
+        let parsed_scores = match parsed_scores {
+            Err(err) => return Err(err),
+            Ok(parsed_scores) => parsed_scores
+        };
         let mut scores = vec![];
         for score in parsed_scores {
-            match &score {
-                Ok(sc) => {
+            match score {
+                Some(sc) => {
                     let new_score = SafmedScore::new(id, sc.0, sc.1, &sc.2)?;
                     scores.push(new_score);
-                }
-                _ => {
-                    return Err(Error::ImporterError(format!(
-                        "failed to parse scores: {}",
-                        &score.unwrap_err()
-                    )))
-                }
+                },
+                None => continue
             };
         }
         Ok(scores)
     }
 
-    fn parse_score(score: (&str, &str)) -> Result<(i32, i32, String)> {
-        let mut parsed_score: Vec<Result<i32>> = score
+    fn parse_score(score_record: (&str, &str)) -> Result<Option<(i32, i32, String)>> {
+        let mut scores: Vec<&str> = score_record
             .0
             .split("/")
             .map(|s: &str| {
-                let s = s.trim();
-                Ok(s.parse::<i32>()?)
+                s.trim()
             })
             .collect();
-        if parsed_score.len() != 2 {
-            return Err(Error::ImporterError(
+        match scores.as_slice() {
+            [correct, incorrect] => {
+                let parsed: Result<Vec<i32>> = vec![correct, incorrect]
+                    .iter()
+                    .map(|s| s.parse::<i32>())
+                    .collect();
+                if parsed.is_err() {
+                    return parsed;
+                }
+                let date = score_record.1.trim().to_owned();
+                if !validate_date(&date) {
+                    return Err(Error::ImporterError(format!(
+                        "{} is not a valid date",
+                        &date
+                    )));
+                }
+                let parsed = parsed.unwrap(); // we know its safe
+                Ok(Some((parsed.remove(0), parsed.remove(0), date.to_string())))
+            },
+            [x] if x.is_empty() => {
+                Ok(None)
+            },
+            _ => Err(Error::ImporterError(
                 "must provide 2 scores per date".into(),
-            ));
-        } else {
-            let date = score.1.trim().to_owned();
-            if !validate_date(&date) {
-                return Err(Error::ImporterError(format!(
-                    "{} is not a valid date",
-                    &date
-                )));
-            }
-            Ok((parsed_score.remove(0)?, parsed_score.remove(0)?, date))
+            ))
         }
     }
 
@@ -128,19 +139,21 @@ impl Importer {
         for record in records {
             let r = record?;
             let (first_names, last_name, dob) = Self::extract_data(&r)?;
-            log::debug!("found {} {}", &first_names, &last_name);
+            debug!("found {} {}", &first_names, &last_name);
             let (id, new_student) = self.get_id(&first_names, &last_name, &dob)?;
             if new_student.is_some() {
-                log::debug!("will add {} {} as new student", &first_names, &last_name);
+                debug!("will add {} {} as new student", &first_names, &last_name);
                 students_to_add.push(new_student.unwrap())
             };
             let scores_in_record = r.into_iter().skip(3).collect();
             let scores = Self::parse_scores(scores_in_record, &id, dates.clone())?;
             scores_to_add.extend(scores);
         }
+        debug!("adding {} new students", &students_to_add.len());
         let students_added = self.student_service.add_students(&students_to_add)?;
+        debug!("adding {} scores", &scores_to_add.len());
         let scores_added = self.score_service.add_scores(&scores_to_add)?;
-        log::debug!(
+        debug!(
             "added {} students and {} scores",
             students_added,
             scores_added
@@ -157,11 +170,11 @@ mod tests {
 
     #[test]
     fn test_parse_score() {
-        let tests: Vec<((&str, &str), Result<(i32, i32, String)>)> = vec![
-            (("89/12", "2021-01-01"), Ok((89, 12, "2021-01-01".into()))),
+        let tests: Vec<((&str, &str), Result<Option<(i32, i32, String)>>)> = vec![
+            (("89/12", "2021-01-01"), Ok(Some((89, 12, "2021-01-01".into())))),
             (
                 (" 89/12 ", "2021-01-01 "),
-                Ok((89, 12, "2021-01-01".into())),
+                Ok(Some((89, 12, "2021-01-01".into()))),
             ),
             (
                 ("89/", "2021-01-01"),

@@ -26,5 +26,4 @@ pub const SCORE_SCHEMA: &str = "CREATE TABLE IF NOT EXISTS safmed (
 
 pub const SCORE_FIELDS: [&'static str; 4] = ["id", "correct", "incorrect", "date"];
 
-pub const CONFIG_PATH: &str = "./safmeds/";
-pub const DB_FILE: &str = "safmed_dev.sqlite";
+pub const DB_FILE: &str = "scorg_data";
