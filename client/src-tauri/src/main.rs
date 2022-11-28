@@ -130,7 +130,7 @@ fn add_safmed_score(
     };
     match service.add_score(&new_score) {
         Ok(_) => Ok(()),
-        Err(error.to_string())
+        Err(error) => Err(error.to_string())
     }
 }
 

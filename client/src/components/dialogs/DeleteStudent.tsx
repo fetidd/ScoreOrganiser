@@ -16,6 +16,7 @@ export default function DeleteStudentDialog(p: Props) {
                 .then(res => {
                     p.refreshStudents();
                     p.setStudentToDelete(null);
+                    p.selectStudent(null)
                 })
                 .catch(err => {
                     console.error(`that shouldnt have failed: ${err}`);
@@ -33,7 +34,9 @@ export default function DeleteStudentDialog(p: Props) {
             }}
         >
             <Paper className="DeleteStudent" elevation={3}>
-                <Box className="inputs">
+                <Box 
+                sx={{display: "flex", justifyContent: "space-between"}}
+                className="inputs">
                     <Typography variant="h5">{"Enter student's surname to confirm deletion"}</Typography>
                     <TextField
                         id="last_name"
@@ -56,5 +59,6 @@ export default function DeleteStudentDialog(p: Props) {
 type Props = {
     studentToDelete: Student | null,
     refreshStudents: Function,
-    setStudentToDelete: Function
+    setStudentToDelete: Function,
+    selectStudent: Function,
 }

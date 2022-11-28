@@ -15,10 +15,6 @@ export default function SafmedScores(p: ScoreProps) {
         if (p.selectedStudent !== null && p.selectedStudent !== undefined) {
             let correctNum = parseInt(correct, 10)
             let incorrectNum = parseInt(incorrect, 10)
-            if (correctNum === null || incorrectNum === null) {
-                console.error("Score not a number");
-                return;
-            }
             invoke("add_safmed_score", {
                 id: p.selectedStudent!.id,
                 correct: correctNum,
@@ -44,8 +40,12 @@ export default function SafmedScores(p: ScoreProps) {
             });
     }
 
+    const clearPlot = () => {
+        document.querySelector("#safmed-chart")!.innerHTML = ""
+    }
+
     useEffect(() => {
-        if (p.selectedStudent !== null) showPlot()
+        if (p.selectedStudent !== null) showPlot(); else clearPlot()
     }, [p.selectedStudent]);
 
     return (

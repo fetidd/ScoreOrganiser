@@ -19,8 +19,8 @@ impl SqliteDao {
         let mut db_path = PathBuf::from(dir);
         db_path.push("scorg");
         match std::fs::create_dir(&db_path) {
-            Ok(_) => debug!("created new data directory"),
-            Err(err) => error!("failed to create data directory: {err}"),
+            Ok(_) => debug!("created new data directory in {}", &db_path.as_os_str().to_str().unwrap()),
+            Err(_) => debug!("using data directory: {}", &db_path.as_os_str().to_str().unwrap()),
         };
         db_path.push(crate::constant::DB_FILE);
         SqliteDao::using_file(db_path.as_os_str().to_str().unwrap())

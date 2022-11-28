@@ -110,6 +110,7 @@ export function StudentList(p: Props) {
         refreshStudents={p.refreshStudents}
         setStudentToDelete={setStudentToDelete}
         studentToDelete={studentToDelete}
+        selectStudent={p.selectStudent}
       />)}
     {studentToEdit !== null && (
       <EditStudentDialog
