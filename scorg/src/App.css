@@ -1,0 +1,112 @@
+body, html {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.modal { 
+    display: none;
+    position: fixed; 
+    z-index: 9;
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.4) 
+}
+
+.dialog { 
+    justify-content: space-between;
+    position: absolute;
+    top: calc(50% - 150px);
+    left: calc(50% - 150px);
+    background-color: #fff; 
+    padding: 5px; 
+    z-index: 10; 
+    max-width: 300px; 
+    min-width: 300px; 
+}
+
+.container {
+    width: 100vw;
+    height: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: 1fr;
+    grid-template-areas: "student-list-area score-tabs-area";
+    /* border: solid 1px magenta; */
+    padding: 5px;
+    gap: 5px;
+}
+
+#StudentList {
+    grid-area: student-list-area;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    gap: 5px;
+    min-height: 100%;
+}
+
+#menubar-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* border: solid 1px red; */
+    height: 40px;
+}
+
+#list-area {
+    flex-grow: 1;
+    padding: 5px;
+    /* border: solid 1px blue; */
+}
+
+#student-list {
+    height: 100%;
+    min-height: 100%;
+}
+
+.student-row {
+    padding: 5px;
+}
+
+.student-row:hover {
+    color: red;
+    cursor: pointer;
+}
+
+#import-csv-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    /* border: solid 1px lime; */
+}
+
+
+
+
+
+
+
+#ScoreTabs {
+    display: grid;
+    grid-area: score-tabs-area;
+    grid-template-columns: 1fr;
+    grid-template-rows: 150px 1fr 100px;
+    border: solid 1px cyan;
+    gap: 5px;
+}

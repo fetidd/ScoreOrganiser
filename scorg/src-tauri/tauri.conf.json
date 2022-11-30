@@ -1,18 +1,17 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
-    "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
-    "devPath": "http://localhost:5173",
-    "distDir": "../.."
+    "beforeBuildCommand": "npm run build",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist"
   },
   "package": {
-    "productName": "Scorg",
-    "version": "0.1.0"
+    "productName": "scorg",
+    "version": "0.0.0"
   },
   "tauri": {
     "allowlist": {
-      "all": false
+      "all": true
     },
     "bundle": {
       "active": true,
@@ -56,10 +55,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 800,
-        "resizable": false,
-        "title": "Scorg",
-        "width": 1200
+        "height": 600,
+        "resizable": true,
+        "title": "scorg",
+        "width": 800
       }
     ]
   }
