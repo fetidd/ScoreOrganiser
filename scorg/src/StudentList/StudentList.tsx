@@ -1,24 +1,25 @@
 import { useEffect, useState } from "react";
+import AddStudentDialog from "./dialogs/AddStudent";
+import DeleteStudentDialog from "./dialogs/DeleteStudent";
+import EditStudentDialog from "./dialogs/EditStudent";
 import { Student } from "./Student"
 
 export default function StudentList({students, setStudents, selected, select, getStudents}: Props) {
-    const [file, setFile] = useState(null as File | null)
-    
+    const [hasContextFocus, setHasContextFocus] = useState("")
     const [modal, setModal] = useState(false)
-    
     const [showAddStudent, setShowAddStudent] = useState(false)
     const [addName, setAddName] = useState("")
     const [addDob, setAddDob] = useState("")
-
     const [showEditStudent, setShowEditStudent] = useState(false)
     const [editing, setEditing] = useState("")
     const [editName, setEditName] = useState("")
     const [editDob, setEditDob] = useState("")
-
-    const [contextMode, setContextMode] = useState(false)
-    const [hasContextFocus, setHasContextFocus] = useState("")
-
-
+    const [showDeleteStudent, setShowDeleteStudent] = useState(false)
+    const [deleting, setDeleting] = useState("")
+    const [confirmDelete, setConfirmDelete] = useState("")
+    const [deleteConfirmationTarget, setDeleteConfirmationTarget] = useState("")
+    const [file, setFile] = useState(null as File | null)
+    
     const addStudent = () => { // TODOINVOKE
         let newStudent: Student = {id: `st${students.length}`, name: addName, dob: addDob}
         students.push(newStudent)
@@ -26,10 +27,10 @@ export default function StudentList({students, setStudents, selected, select, ge
     }
 
     const deleteStudent = () => { // TODOINVOKE
-        let newStudents = students.filter(st => st.id !== hasContextFocus)
+        let newStudents = students.filter(st => st.id !== deleting)
         setStudents(newStudents)
-        setContextMode(false)
         setHasContextFocus("")
+        setDeleting("")
     }
 
     const editStudent = () => { // TODOINVOKE
@@ -47,6 +48,7 @@ export default function StudentList({students, setStudents, selected, select, ge
     const closeModals = () => {
         setShowAddStudent(false)
         setShowEditStudent(false)
+        setShowDeleteStudent(false)
         setModal(false)
     }
 
@@ -75,11 +77,9 @@ export default function StudentList({students, setStudents, selected, select, ge
                 onContextMenu={e => {
                     e.preventDefault()
                     select(student.id)
-                    setContextMode(!contextMode)
                     setHasContextFocus(student.id)
                 }}
                 onMouseLeave={() => {
-                    setContextMode(false)
                     setHasContextFocus("")
                 }}
                 >
@@ -90,17 +90,21 @@ export default function StudentList({students, setStudents, selected, select, ge
                     >{student.name}</span>
                     <button 
                     style={{
-                        display: (contextMode && hasContextFocus===student.id)?"block":"none",
+                        display: (hasContextFocus===student.id)?"block":"none",
                         justifySelf: "end"
                     }}
                     onClick={e => {
                         e.stopPropagation()
-                        deleteStudent()
+                        setShowDeleteStudent(true)
+                        setModal(true)
+                        setDeleting(student.id)
+                        const splitName = student.name.split(" ")
+                        setDeleteConfirmationTarget(splitName[splitName.length - 1])
                     }}
                     >Delete</button>
                     <button 
                     style={{
-                        display: (contextMode && hasContextFocus===student.id)?"block":"none",
+                        display: (hasContextFocus===student.id)?"block":"none",
                         justifySelf: "end"
                     }}
                     onClick={e => {
@@ -114,22 +118,26 @@ export default function StudentList({students, setStudents, selected, select, ge
                     >Edit</button>
                 </div>
 
-                <div 
-                    id="edit-student-dialog"
-                    className="dialog"
-                    style={{
-                        display: showEditStudent?"flex":"none",
-                    }}>
-                    <input type="text" value={editName} onChange={(e => {setEditName(e.target.value)})}/>
-                    <input type="date" value={editDob} onChange={(e => {setEditDob(e.target.value)})}/>
-                    <button onClick={() => {
-                        console.log(`editing ${editName} ${editDob}`)
-                        setEditName("")
-                        setEditDob("")
-                        editStudent()
-                        closeModals()
-                    }}>Save</button>
-                </div>
+                <EditStudentDialog 
+                showEditStudent={showEditStudent}
+                editName={editName}
+                editDob={editDob}
+                setEditName={setEditName}
+                setEditDob={setEditDob}
+                editStudent={editStudent}
+                closeModals={closeModals}
+                />
+
+                <DeleteStudentDialog
+                showDeleteStudent={showDeleteStudent}
+                confirmDelete={confirmDelete}
+                setConfirmDelete={setConfirmDelete}
+                deleteConfirmationTarget={deleteConfirmationTarget}
+                deleteStudent={deleteStudent}
+                closeModals={closeModals}
+                setDeleteConfirmationTarget={setDeleteConfirmationTarget}
+                />
+                
             </li>
         )
     });
@@ -171,22 +179,15 @@ export default function StudentList({students, setStudents, selected, select, ge
         style={{
             display: modal?"block":"none",
         }}></div>
-        <div 
-        id="add-student-dialog"
-        className="dialog"
-        style={{
-            display: showAddStudent?"flex":"none",
-        }}>
-            <input type="text" value={addName} onChange={(e => {setAddName(e.target.value)})}/>
-            <input type="date" value={addDob} onChange={(e => {setAddDob(e.target.value)})}/>
-            <button onClick={() => {
-                console.log(`adding ${addName} ${addDob}`)
-                setAddName("")
-                setAddDob("")
-                addStudent()
-                closeModals()
-            }}>Add</button>
-        </div>
+        <AddStudentDialog
+        showAddStudent={showAddStudent}
+        addName={addName}
+        setAddName={setAddName}
+        addDob={addDob}
+        setAddDob={setAddDob}
+        addStudent={addStudent}
+        closeModals={closeModals}
+        />
         </>
     )
 }

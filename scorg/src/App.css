@@ -11,6 +11,12 @@ ul {
     padding: 0;
 }
 
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .modal { 
     display: none;
     position: fixed; 
@@ -24,12 +30,12 @@ ul {
 }
 
 .dialog { 
-    justify-content: space-between;
+    flex-direction: column;
     position: absolute;
     top: calc(50% - 150px);
     left: calc(50% - 150px);
     background-color: #fff; 
-    padding: 5px; 
+    padding: 15px; 
     z-index: 10; 
     max-width: 300px; 
     min-width: 300px; 
@@ -62,7 +68,7 @@ ul {
 
 #menubar-area {
     display: flex;
-    justify-content: center;
+    justify-content: end;
     align-items: center;
     /* border: solid 1px red; */
     height: 40px;
