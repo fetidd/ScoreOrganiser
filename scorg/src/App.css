@@ -3,6 +3,7 @@ body, html {
     width: 100%;
     margin: 0;
     overflow: hidden;
+    font-family: 'Roboto', sans-serif;
 }
 
 ul {
@@ -87,6 +88,7 @@ ul {
 
 .student-row {
     padding: 5px;
+    border-radius: 5px;
 }
 
 .student-row:hover {

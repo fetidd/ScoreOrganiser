@@ -179,6 +179,7 @@ export default function StudentList({students, setStudents, selected, select, ge
         style={{
             display: modal?"block":"none",
         }}></div>
+        
         <AddStudentDialog
         showAddStudent={showAddStudent}
         addName={addName}
