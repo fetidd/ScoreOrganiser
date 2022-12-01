@@ -1,17 +1,15 @@
-export default function SnackBar({ msg, color }: Props) {
-  let snackbar = document.createElement("div");
-  snackbar.className = "snackbar";
-  snackbar.classList.add(color);
-  snackbar.textContent = msg;
-  document.body.appendChild(snackbar);
-  snackbar.classList.add("show");
-  setTimeout(() => {
-    snackbar.classList.remove("show");
-    document.body.removeChild(snackbar);
-  }, 3000);
-}
+import React, { useContext } from "react";
+import SnackbarContext from "./snackbar-context";
+import "./Snackbar.css"
 
-type Props = {
-  msg: string,
-  color: string,
-}
+const Snackbar = () => {
+  const ctx = useContext(SnackbarContext)
+
+  return (
+    <div className="snackbar__container">
+      <div className="snackbar__label">{ctx.msg}</div>
+      <div className="snackbar__dismiss" onClick={ctx.onClose}>&times;</div>
+    </div>
+  );
+};
+export default Snackbar;
