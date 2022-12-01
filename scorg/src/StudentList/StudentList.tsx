@@ -4,9 +4,8 @@ import { Student } from "./Student"
 import StudentRow from "./StudentRow";
 
 export default function StudentList({ students, setStudents, selected, select, getStudents }: Props) {
-    const [idCount, setIdCount] = useState(5)
+    const [idCount, setIdCount] = useState(5) // TODO remove, just for dev
 
-    const [hasContextFocus, setHasContextFocus] = useState("")
     const [modal, setModal] = useState(false)
     const [showAddStudent, setShowAddStudent] = useState(false)
     const [addName, setAddName] = useState("")
@@ -31,7 +30,6 @@ export default function StudentList({ students, setStudents, selected, select, g
     const deleteStudent = () => { // TODOINVOKE
         let newStudents = students.filter(st => st.id !== deleting)
         setStudents(newStudents)
-        setHasContextFocus("")
         setDeleting("")
     }
 
@@ -41,7 +39,6 @@ export default function StudentList({ students, setStudents, selected, select, g
             edited.name = editName
             edited.dob = editDob
         }
-        setHasContextFocus("")
         setEditing("")
     }
 
