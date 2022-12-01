@@ -4,10 +4,6 @@ import "./App.css";
 import StudentList from "./StudentList/StudentList";
 import { Student } from "./StudentList/Student";
 
-type DbError = {
-  DbError: string
-}
-
 function App() {
 
   const [selected, setSelected] = useState("")
@@ -25,7 +21,7 @@ function App() {
   return (
     <div className="container">
       <div id="student-list-area">
-        <StudentList students={students} selected={selected} select={setSelected} getStudents={getStudentsFromTauri}/>
+        <StudentList students={students} selected={selected} select={setSelected} getStudents={getStudentsFromTauri} />
       </div>
       <div id="score-tab-area"></div>
     </div>
