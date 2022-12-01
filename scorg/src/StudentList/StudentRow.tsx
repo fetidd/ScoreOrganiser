@@ -1,32 +1,69 @@
-import { useState } from "react";
+import DeleteStudentDialog from "./dialogs/DeleteStudent";
+import EditStudentDialog from "./dialogs/EditStudent";
 import { Student } from "./Student";
 
-export default function StudentRow({student, selected, select, setModal, setShowEditStudentDialog, setShowDeleteStudentDialog, setEditing, setDeleting}: Props) {
-    const [hasContextFocus, setHasContextFocus] = useState("")
-
+export default function StudentRow ({
+    student,
+    select,
+    selected,
+    hasContextFocus,
+    setHasContextFocus,
+    showEditStudent,
+    setShowEditStudent,
+    editName,
+    editDob,
+    setEditName,
+    setEditing,
+    setEditDob,
+    editStudent,
+    showDeleteStudent,
+    setShowDeleteStudent,
+    setDeleting,
+    confirmDelete,
+    setConfirmDelete,
+    deleteConfirmationTarget,
+    setDeleteConfirmationTarget,
+    deleteStudent,
+    closeModals,
+    setModal,
+}: Props) {
     const isSelected = student.id === selected;
-    let classlist = "student-row"
-    if (isSelected) classlist += " selected"
-
-    const rightClick = (e: any) => {
-        e.preventDefault()
-        select(student.id)
-        setHasContextFocus(student.id)
-    }
-
+    let classes = "student-row"
+    if (isSelected) classes += " selected"
     return (
         <li>
-            <div className={classlist} onClick={() => {select(student.id)}} onContextMenu={e => rightClick(e)} onMouseLeave={() => setHasContextFocus("")}>
-                <span>{student.name}</span>
-                <button className="icon-button" style={{
+            <div
+                className={classes}
+                onClick={() => {
+                    select(student.id)
+                }}
+                onContextMenu={e => {
+                    e.preventDefault()
+                    select(student.id)
+                    setHasContextFocus(student.id)
+                }}
+                onMouseLeave={() => {
+                    setHasContextFocus("")
+                }}
+            >
+                <span
+                    style={{
+                        flexGrow: "1",
+                    }}
+                >{student.name}</span>
+                <button
+                    className="icon-button"
+                    style={{
                         display: (hasContextFocus === student.id) ? "block" : "none",
                         justifySelf: "end"
                     }}
                     onClick={e => {
                         e.stopPropagation()
-                        setEditing(student.id)
-                        setShowEditStudentDialog(true)
+                        setEditName(student.name)
+                        setEditDob(student.dob)
                         setModal(true)
+                        setEditing(student.id)
+                        setShowEditStudent(true)
                     }}
                 ><i className="fa-solid fa-pen"></i></button>
                 <button
@@ -37,12 +74,34 @@ export default function StudentRow({student, selected, select, setModal, setShow
                     }}
                     onClick={e => {
                         e.stopPropagation()
-                        setDeleting(student.id)
-                        setShowDeleteStudentDialog(true)
+                        setShowDeleteStudent(true)
                         setModal(true)
+                        setDeleting(student.id)
+                        const splitName = student.name.split(" ")
+                        setDeleteConfirmationTarget(splitName[splitName.length - 1])
                     }}
                 ><i className="fa-solid fa-trash-can"></i></button>
             </div>
+
+            <EditStudentDialog
+                showEditStudent={showEditStudent}
+                editName={editName}
+                editDob={editDob}
+                setEditName={setEditName}
+                setEditDob={setEditDob}
+                editStudent={editStudent}
+                closeModals={closeModals}
+            />
+
+            <DeleteStudentDialog
+                showDeleteStudent={showDeleteStudent}
+                confirmDelete={confirmDelete}
+                setConfirmDelete={setConfirmDelete}
+                deleteConfirmationTarget={deleteConfirmationTarget}
+                deleteStudent={deleteStudent}
+                closeModals={closeModals}
+                setDeleteConfirmationTarget={setDeleteConfirmationTarget}
+            />
 
         </li>
     )
@@ -50,13 +109,29 @@ export default function StudentRow({student, selected, select, setModal, setShow
 
 type Props = {
     student: Student,
-    selected: string,
     select: Function,
-    handleDeleteStudent: Function,
-    handleEditStudent: Function,
-    setModal: Function,
-    setShowDeleteStudentDialog: Function,
-    setShowEditStudentDialog: Function,
+    selected: string,
+    hasContextFocus: string,
+    setHasContextFocus: Function,
+
+    showEditStudent: boolean,
+    setShowEditStudent: Function,
+    editName: string, 
+    editDob: string,
+    setEditName: Function,
     setEditing: Function,
-    setDeleting: Function
+    setEditDob: Function, 
+    editStudent: Function,
+
+    showDeleteStudent: boolean,
+    setShowDeleteStudent: Function,
+    setDeleting: Function,
+    confirmDelete: string,
+    setConfirmDelete: Function,
+    deleteConfirmationTarget: string,
+    setDeleteConfirmationTarget: Function,
+    deleteStudent: Function,
+
+    closeModals: Function,
+    setModal: Function,
 }

@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import AddStudentDialog from "./dialogs/AddStudent";
-import DeleteStudentDialog from "./dialogs/DeleteStudent";
-import EditStudentDialog from "./dialogs/EditStudent";
 import { Student } from "./Student"
-import SnackBar from "../Snackbar"
+import StudentRow from "./StudentRow";
 
 export default function StudentList({ students, setStudents, selected, select, getStudents }: Props) {
+    const [idCount, setIdCount] = useState(5)
     const [hasContextFocus, setHasContextFocus] = useState("")
     const [modal, setModal] = useState(false)
     const [showAddStudent, setShowAddStudent] = useState(false)
@@ -22,7 +21,8 @@ export default function StudentList({ students, setStudents, selected, select, g
     const [file, setFile] = useState(null as File | null)
 
     const addStudent = () => { // TODOINVOKE
-        let newStudent: Student = { id: `st${students.length}`, name: addName, dob: addDob }
+        let newStudent: Student = { id: `st${idCount}`, name: addName, dob: addDob }
+        setIdCount(idCount+1)
         students.push(newStudent)
         setStudents(students)
     }
@@ -60,83 +60,33 @@ export default function StudentList({ students, setStudents, selected, select, g
     }
 
     const rows = students.map(student => {
-        const isSelected = student.id === selected;
-        let classes = "student-row"
-        if (isSelected) classes += " selected"
         return (
-            <li key={student.id}>
-                <div
-                    className={classes}
-                    onClick={() => {
-                        select(student.id)
-                    }}
-                    onContextMenu={e => {
-                        e.preventDefault()
-                        select(student.id)
-                        setHasContextFocus(student.id)
-                    }}
-                    onMouseLeave={() => {
-                        setHasContextFocus("")
-                    }}
-                >
-                    <span
-                        style={{
-                            flexGrow: "1",
-                        }}
-                    >{student.name}</span>
-                    <button
-                        className="icon-button"
-                        style={{
-                            display: (hasContextFocus === student.id) ? "block" : "none",
-                            justifySelf: "end"
-                        }}
-                        onClick={e => {
-                            e.stopPropagation()
-                            setEditName(student.name)
-                            setEditDob(student.dob)
-                            setModal(true)
-                            setEditing(student.id)
-                            setShowEditStudent(true)
-                        }}
-                    ><i className="fa-solid fa-pen"></i></button>
-                    <button
-                        className="icon-button red"
-                        style={{
-                            display: (hasContextFocus === student.id) ? "block" : "none",
-                            justifySelf: "end"
-                        }}
-                        onClick={e => {
-                            e.stopPropagation()
-                            setShowDeleteStudent(true)
-                            setModal(true)
-                            setDeleting(student.id)
-                            const splitName = student.name.split(" ")
-                            setDeleteConfirmationTarget(splitName[splitName.length - 1])
-                        }}
-                    ><i className="fa-solid fa-trash-can"></i></button>
-                </div>
-
-                <EditStudentDialog
-                    showEditStudent={showEditStudent}
-                    editName={editName}
-                    editDob={editDob}
-                    setEditName={setEditName}
-                    setEditDob={setEditDob}
-                    editStudent={editStudent}
-                    closeModals={closeModals}
-                />
-
-                <DeleteStudentDialog
-                    showDeleteStudent={showDeleteStudent}
-                    confirmDelete={confirmDelete}
-                    setConfirmDelete={setConfirmDelete}
-                    deleteConfirmationTarget={deleteConfirmationTarget}
-                    deleteStudent={deleteStudent}
-                    closeModals={closeModals}
-                    setDeleteConfirmationTarget={setDeleteConfirmationTarget}
-                />
-
-            </li>
+            <StudentRow 
+                key={student.id}
+                student={student}
+                select={select}
+                selected={selected}
+                hasContextFocus={hasContextFocus}
+                setHasContextFocus={setHasContextFocus}
+                showEditStudent={showEditStudent}
+                setShowEditStudent={setShowEditStudent}
+                editName={editName}
+                editDob={editDob}
+                setEditName={setEditName}
+                setEditing={setEditing}
+                setEditDob={setEditDob}
+                editStudent={editStudent}
+                showDeleteStudent={showDeleteStudent}
+                setShowDeleteStudent={setShowDeleteStudent}
+                setDeleting={setDeleting}
+                confirmDelete={confirmDelete}
+                setConfirmDelete={setConfirmDelete}
+                deleteConfirmationTarget={deleteConfirmationTarget}
+                setDeleteConfirmationTarget={setDeleteConfirmationTarget}
+                deleteStudent={deleteStudent}
+                closeModals={closeModals}
+                setModal={setModal}
+            />
         )
     });
 
