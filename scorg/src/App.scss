@@ -1,0 +1,194 @@
+body, html {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Roboto', sans-serif;
+}
+
+$row: #28262b;
+$red: #ba2525;
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.button {
+    margin: 0;
+    min-height: 40px;
+    border: none;
+    appearance: none;
+    background-color: #eee;
+    border-radius: 50px;
+    box-sizing: border-box;
+    color: #444;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    list-style: none;
+    padding: 6px 16px;
+    position: relative;
+    vertical-align: middle;
+    white-space: nowrap;
+    word-wrap: break-word;
+
+    &:hover {
+        background-color: #bbb
+    }
+}
+
+.icon-button {
+    margin-left: 5px;
+    border: 1.5px solid #eee;
+    appearance: none;
+    background-color: transparent;
+    border-radius: 100%;
+    color: #eee;
+    text-align: center;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 1em;
+
+    &:hover {
+        transition: 0.5s;
+    }
+
+    &.red {
+        color: $red;
+        border-color: $red;
+    }
+
+    &.dark {
+        background-color: $row;
+        border-color: $row;
+    }
+}
+
+.row {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.modal { 
+    display: none;
+    position: fixed; 
+    z-index: 9;
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.4) 
+}
+
+.dialog { 
+    flex-direction: column;
+    position: absolute;
+    top: calc(50% - 150px);
+    left: calc(50% - 150px);
+    background-color: #fff; 
+    padding: 15px; 
+    z-index: 10; 
+    max-width: 300px; 
+    min-width: 300px; 
+}
+
+.container {
+    width: 100vw;
+    height: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: 1fr;
+    grid-template-areas: "student-list-area score-tabs-area";
+    padding: 5px;
+    gap: 5px;
+
+    @media only screen and (max-width: 600px) {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+#StudentList {
+    grid-area: student-list-area;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    gap: 5px;
+    min-height: 100%;
+
+    #menubar-area {
+        display: flex;
+        justify-content: end;
+        align-items: center;
+        /* border: solid 1px red; */
+        height: 40px;
+    }
+
+    #list-area {
+        flex-grow: 1;
+    }
+
+    #student-list {
+        height: 100%;
+        min-height: 100%;
+    }
+
+    .student-row {
+        padding: 5px 10px;
+        margin-top: 5px;
+        border-radius: 50px;
+        span {
+            display: inline-block;
+            white-space: nowrap;
+            height: 1em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .student-row:hover {
+        cursor: pointer;
+    }
+}
+
+#import-csv-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+}
+
+#ScoreTabs {
+    display: grid;
+    grid-area: score-tabs-area;
+    grid-template-columns: 1fr;
+    grid-template-rows: 150px 1fr 100px;
+    border: solid 1px cyan;
+    gap: 5px;
+}
+
+.snackbar {
+    margin: 0 auto;
+    display: none;
+    
+    .show {
+        display: flex;
+    }
+
+    .red {
+        background-color: $red;
+        color: #fff;
+    }
+}

@@ -3,8 +3,9 @@ import AddStudentDialog from "./dialogs/AddStudent";
 import DeleteStudentDialog from "./dialogs/DeleteStudent";
 import EditStudentDialog from "./dialogs/EditStudent";
 import { Student } from "./Student"
+import SnackBar from "../Snackbar"
 
-export default function StudentList({students, setStudents, selected, select, getStudents}: Props) {
+export default function StudentList({ students, setStudents, selected, select, getStudents }: Props) {
     const [hasContextFocus, setHasContextFocus] = useState("")
     const [modal, setModal] = useState(false)
     const [showAddStudent, setShowAddStudent] = useState(false)
@@ -19,9 +20,9 @@ export default function StudentList({students, setStudents, selected, select, ge
     const [confirmDelete, setConfirmDelete] = useState("")
     const [deleteConfirmationTarget, setDeleteConfirmationTarget] = useState("")
     const [file, setFile] = useState(null as File | null)
-    
+
     const addStudent = () => { // TODOINVOKE
-        let newStudent: Student = {id: `st${students.length}`, name: addName, dob: addDob}
+        let newStudent: Student = { id: `st${students.length}`, name: addName, dob: addDob }
         students.push(newStudent)
         setStudents(students)
     }
@@ -43,7 +44,7 @@ export default function StudentList({students, setStudents, selected, select, ge
         setEditing("")
     }
 
-    useEffect(() => {getStudents()}, [])
+    useEffect(() => { getStudents() }, [])
 
     const closeModals = () => {
         setShowAddStudent(false)
@@ -62,133 +63,144 @@ export default function StudentList({students, setStudents, selected, select, ge
         const isSelected = student.id === selected;
         return (
             <li key={student.id}>
-                <div 
-                style={{
-                    backgroundColor: isSelected?"red":"transparent",
-                    color: isSelected?"white":"black",
-                    display: "flex",
-                    alignItems: "center",
-                    height: "30px",
-                }} 
-                className="student-row" 
-                onClick={() => {
-                    select(student.id)
-                }}
-                onContextMenu={e => {
-                    e.preventDefault()
-                    select(student.id)
-                    setHasContextFocus(student.id)
-                }}
-                onMouseLeave={() => {
-                    setHasContextFocus("")
-                }}
+                <div
+                    style={{
+                        backgroundColor: isSelected ? "#28262b" : "#eee",
+                        color: isSelected ? "white" : "black",
+                        display: "flex",
+                        alignItems: "center",
+                        height: "30px",
+                    }}
+                    className="student-row"
+                    onClick={() => {
+                        select(student.id)
+                    }}
+                    onContextMenu={e => {
+                        e.preventDefault()
+                        select(student.id)
+                        setHasContextFocus(student.id)
+                    }}
+                    onMouseLeave={() => {
+                        setHasContextFocus("")
+                    }}
                 >
                     <span
-                    style={{
-                        flexGrow: "1",
-                    }}
+                        style={{
+                            flexGrow: "1",
+                        }}
                     >{student.name}</span>
-                    <button 
-                    style={{
-                        display: (hasContextFocus===student.id)?"block":"none",
-                        justifySelf: "end"
-                    }}
-                    onClick={e => {
-                        e.stopPropagation()
-                        setShowDeleteStudent(true)
-                        setModal(true)
-                        setDeleting(student.id)
-                        const splitName = student.name.split(" ")
-                        setDeleteConfirmationTarget(splitName[splitName.length - 1])
-                    }}
-                    >Delete</button>
-                    <button 
-                    style={{
-                        display: (hasContextFocus===student.id)?"block":"none",
-                        justifySelf: "end"
-                    }}
-                    onClick={e => {
-                        e.stopPropagation()
-                        setEditName(student.name)
-                        setEditDob(student.dob)
-                        setModal(true)
-                        setEditing(student.id)
-                        setShowEditStudent(true)
-                    }}
-                    >Edit</button>
+                    <button
+                        className="icon-button"
+                        style={{
+                            display: (hasContextFocus === student.id) ? "block" : "none",
+                            justifySelf: "end"
+                        }}
+                        onClick={e => {
+                            e.stopPropagation()
+                            setEditName(student.name)
+                            setEditDob(student.dob)
+                            setModal(true)
+                            setEditing(student.id)
+                            setShowEditStudent(true)
+                        }}
+                    ><i className="fa-solid fa-pen"></i></button>
+                    <button
+                        className="icon-button red"
+                        style={{
+                            display: (hasContextFocus === student.id) ? "block" : "none",
+                            justifySelf: "end"
+                        }}
+                        onClick={e => {
+                            e.stopPropagation()
+                            setShowDeleteStudent(true)
+                            setModal(true)
+                            setDeleting(student.id)
+                            const splitName = student.name.split(" ")
+                            setDeleteConfirmationTarget(splitName[splitName.length - 1])
+                        }}
+                    ><i className="fa-solid fa-trash-can"></i></button>
                 </div>
 
-                <EditStudentDialog 
-                showEditStudent={showEditStudent}
-                editName={editName}
-                editDob={editDob}
-                setEditName={setEditName}
-                setEditDob={setEditDob}
-                editStudent={editStudent}
-                closeModals={closeModals}
+                <EditStudentDialog
+                    showEditStudent={showEditStudent}
+                    editName={editName}
+                    editDob={editDob}
+                    setEditName={setEditName}
+                    setEditDob={setEditDob}
+                    editStudent={editStudent}
+                    closeModals={closeModals}
                 />
 
                 <DeleteStudentDialog
-                showDeleteStudent={showDeleteStudent}
-                confirmDelete={confirmDelete}
-                setConfirmDelete={setConfirmDelete}
-                deleteConfirmationTarget={deleteConfirmationTarget}
-                deleteStudent={deleteStudent}
-                closeModals={closeModals}
-                setDeleteConfirmationTarget={setDeleteConfirmationTarget}
+                    showDeleteStudent={showDeleteStudent}
+                    confirmDelete={confirmDelete}
+                    setConfirmDelete={setConfirmDelete}
+                    deleteConfirmationTarget={deleteConfirmationTarget}
+                    deleteStudent={deleteStudent}
+                    closeModals={closeModals}
+                    setDeleteConfirmationTarget={setDeleteConfirmationTarget}
                 />
-                
+
             </li>
         )
     });
 
     return (
         <>
-        <div id="StudentList">
-            <div id="menubar-area">
-                <button onClick={() => {
-                    setModal(true)
-                    setShowAddStudent(true)
-                }}>Add student</button>
+            <div id="StudentList">
+                <div id="menubar-area">
+                    <button
+                        className="icon-button dark"
+                        onClick={() => {
+                            setModal(true)
+                            setShowAddStudent(true)
+                        }}><i className="fa-solid fa-plus"></i></button>
+                </div>
+
+                <div id="list-area">
+                    <ul id="student-list">
+                        {rows}
+                    </ul>
+                </div>
+
+                <div id="import-csv-area">
+                    <div className="row">
+                        <input
+                            id="csv-input"
+                            type="file"
+                            name="csv-input"
+                            accept=".csv"
+                            onChange={e => {
+                                const files = e.target.files
+                                if (files !== null && files[0] !== null) {
+                                    setFile(files[0])
+                                }
+                            }}
+                        />
+                        <button
+                            className="button"
+                            onClick={uploadFile}
+                        >Upload</button>
+                    </div>
+                </div>
             </div>
 
-            <div id="list-area">
-                <ul id="student-list">
-                    {rows}
-                </ul>
-            </div>
+            <div
+                className="modal"
+                onClick={() => closeModals()}
+                style={{
+                    display: modal ? "block" : "none",
+                }}></div>
 
-            <div id="import-csv-area">
-                <input 
-                id="csv-input"
-                type="file"
-                accept=".csv"
-                onChange={e => {
-                    const files = e.target.files
-                    if (files !== null && files[0] !== null) {
-                        setFile(files[0])
-                    }
-                }}/>
-                <button onClick={uploadFile}>Upload</button>
-            </div>
-        </div>
-        
-        <div 
-        className="modal" 
-        onClick={() => closeModals()}
-        style={{
-            display: modal?"block":"none",
-        }}></div>
-        
-        <AddStudentDialog
-        showAddStudent={showAddStudent}
-        addName={addName}
-        setAddName={setAddName}
-        addDob={addDob}
-        setAddDob={setAddDob}
-        addStudent={addStudent}
-        closeModals={closeModals}
-        />
+            <AddStudentDialog
+                showAddStudent={showAddStudent}
+                addName={addName}
+                setAddName={setAddName}
+                addDob={addDob}
+                setAddDob={setAddDob}
+                addStudent={addStudent}
+                closeModals={closeModals}
+            />
         </>
     )
 }
