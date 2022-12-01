@@ -1,18 +1,20 @@
+import { useState } from "react"
+import { Student } from "../Student"
+
 export default function DeleteStudentDialog({
-    showDeleteStudent,
-    confirmDelete,
-    setConfirmDelete,
-    deleteConfirmationTarget,
+    showDialog,
+    student,
     deleteStudent,
     closeModals,
-    setDeleteConfirmationTarget
 }: Props) {
+    const [confirmDelete, setConfirmDelete] = useState("")
+
     return (
         <div 
         id="delete-student-dialog"
         className="dialog"
         style={{
-            display: showDeleteStudent?"flex":"none",
+            display: showDialog?"flex":"none",
         }}>
             <div className="row">
                 <span>Type student's last name to confirm delete</span>
@@ -20,12 +22,13 @@ export default function DeleteStudentDialog({
             <div className="row">
                 <input type="text" value={confirmDelete} onChange={(e => {setConfirmDelete(e.target.value)})}/>
                 <button onClick={() => {
-                    if (confirmDelete === deleteConfirmationTarget) {
-                        deleteStudent()
+                    console.log(confirmDelete)
+                    console.log(student!.last_name)
+                    if (confirmDelete === student!.last_name) {
+                        deleteStudent(student!.id)
+                        setConfirmDelete("")
                         closeModals()
                     }
-                    setConfirmDelete("")
-                    setDeleteConfirmationTarget("")
                 }}>Confirm</button>
             </div>
         </div>
@@ -33,11 +36,8 @@ export default function DeleteStudentDialog({
 }
 
 type Props = {
-    showDeleteStudent: boolean,
-    confirmDelete: string,
-    setConfirmDelete: Function,
-    deleteConfirmationTarget: string,
+    showDialog: boolean,
+    student: Student | null,
     deleteStudent: Function,
     closeModals: Function,
-    setDeleteConfirmationTarget: Function,
 }

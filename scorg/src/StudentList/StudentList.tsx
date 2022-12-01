@@ -15,18 +15,18 @@ interface Props {
 }
 
 export default function StudentList({ students, selected, select, getStudents }: Props) {
-    const [idCount, setIdCount] = useState(5) // TODO remove, just for dev
-
     const [modal, setModal] = useState(false)
+
     const [showAddStudent, setShowAddStudent] = useState(false)
+
     const [showEditStudent, setShowEditStudent] = useState(false)
-    const [editing, setEditing] = useState("")
+    const [editing, setEditing] = useState(null as Student | null)
     const [editName, setEditName] = useState("")
     const [editDob, setEditDob] = useState("")
+
     const [showDeleteStudent, setShowDeleteStudent] = useState(false)
-    const [deleting, setDeleting] = useState("")
-    const [confirmDelete, setConfirmDelete] = useState("")
-    const [deleteConfirmationTarget, setDeleteConfirmationTarget] = useState("")
+    const [deleting, setDeleting] = useState(null as Student | null)
+
     const [file, setFile] = useState(null as File | null)
 
     const addStudentToTauri = async (firstNames: string, lastName: string, dateOfBirth: string) => { // TODOINVOKE
@@ -35,17 +35,19 @@ export default function StudentList({ students, selected, select, getStudents }:
             console.log("added student") // TODO snackbar
             getStudents()
           } catch (error) {
-            console.error(`failed to add student: ${error}`) // TODO snackbar
+            console.error("failed to add student") // TODO snackbar
+            console.error(error)
           }
     }
 
-    const deleteStudentFromTauri = async () => { // TODOINVOKE
+    const deleteStudentFromTauri = async (id: string) => { // TODOINVOKE
         try {
-            await invoke("delete_student", {id: deleting})
+            await invoke("delete_student", {id})
             console.log("added student") // TODO snackbar
             getStudents()
           } catch (error) {
-            console.error(`failed to delete student: ${error}`) // TODO snackbar
+            console.error("failed to delete student") // TODO snackbar
+            console.error(error)
           }
     }
 
@@ -58,7 +60,8 @@ export default function StudentList({ students, selected, select, getStudents }:
             console.log("added student") // TODO snackbar
             getStudents()
           } catch (error) {
-            console.error(`failed to edit student: ${error}`) // TODO snackbar
+            console.error("failed to edit student") // TODO snackbar
+            console.error(error)
           }
     }
 
@@ -92,18 +95,16 @@ export default function StudentList({ students, selected, select, getStudents }:
     const rows = students.map(student => {
         return (
             <StudentRow key={student.id}
-                student={student}
-                select={select}
-                selected={selected}
-                setShowEditStudent={setShowEditStudent}
-                setEditName={setEditName}
-                setEditing={setEditing}
-                setEditDob={setEditDob}
-                setShowDeleteStudent={setShowDeleteStudent}
-                setDeleting={setDeleting}
-                setConfirmDelete={setConfirmDelete}
-                setDeleteConfirmationTarget={setDeleteConfirmationTarget}
-                setModal={setModal}
+            student={student}
+            select={select}
+            selected={selected}
+            setShowEditStudent={setShowEditStudent}
+            setEditName={setEditName}
+            setEditing={setEditing}
+            setEditDob={setEditDob}
+            setShowDeleteStudent={setShowDeleteStudent}
+            setDeleting={setDeleting}
+            setModal={setModal} 
             />
         )
     });
@@ -129,9 +130,9 @@ export default function StudentList({ students, selected, select, getStudents }:
                 </div>
             </div>
             <div className="modal" onClick={() => closeModals()} style={{display: modal ? "block" : "none",}}></div>
-            <AddStudentDialog showAddStudent={showAddStudent} addStudent={addStudentToTauri} closeModals={closeModals} />
-            <EditStudentDialog showEditStudent={showEditStudent} editName={editName} editDob={editDob} setEditName={setEditName} setEditDob={setEditDob} editStudent={editStudentInTauri} closeModals={closeModals} />
-            <DeleteStudentDialog showDeleteStudent={showDeleteStudent} confirmDelete={confirmDelete} setConfirmDelete={setConfirmDelete} deleteConfirmationTarget={deleteConfirmationTarget} deleteStudent={deleteStudentFromTauri} closeModals={closeModals} setDeleteConfirmationTarget={setDeleteConfirmationTarget} />
+            <AddStudentDialog showDialog={showAddStudent} addStudent={addStudentToTauri} closeModals={closeModals} />
+            <EditStudentDialog showDialog={showEditStudent} editName={editName} editDob={editDob} setEditName={setEditName} setEditDob={setEditDob} editStudent={editStudentInTauri} closeModals={closeModals} />
+            <DeleteStudentDialog showDialog={showDeleteStudent} student={deleting}  deleteStudent={deleteStudentFromTauri} closeModals={closeModals} />
         </>
     )
 }

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Student } from "./Student";
 
 
-type Props = {
+interface Props {
     student: Student,
     select: Function,
     selected: string,
@@ -12,8 +12,6 @@ type Props = {
     setEditDob: Function,
     setShowDeleteStudent: Function,
     setDeleting: Function,
-    setConfirmDelete: Function,
-    setDeleteConfirmationTarget: Function,
     setModal: Function,
 }
 
@@ -27,7 +25,6 @@ export default function StudentRow({
     setEditDob,
     setShowDeleteStudent,
     setDeleting,
-    setDeleteConfirmationTarget,
     setModal,
 }: Props) {
 
@@ -40,7 +37,7 @@ export default function StudentRow({
     function handleEditClick(e: React.MouseEvent) {
         e.stopPropagation()
         setModal(true)
-        setEditing(student.id)
+        setEditing(student)
         setEditName(`${student.first_names} ${student.last_name}`)
         setEditDob(student.date_of_birth)
         setShowEditStudent(true)
@@ -49,8 +46,7 @@ export default function StudentRow({
     function handleDeleteClick(e: React.MouseEvent) {
         e.stopPropagation()
         setModal(true)
-        setDeleting(student.id)
-        setDeleteConfirmationTarget(student.last_name)
+        setDeleting(student)
         setShowDeleteStudent(true)
     }
 

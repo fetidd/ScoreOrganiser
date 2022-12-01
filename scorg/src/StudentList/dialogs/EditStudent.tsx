@@ -1,5 +1,5 @@
 export default function EditStudentDialog({
-    showEditStudent, 
+    showDialog, 
     editName, 
     setEditName, 
     editDob, 
@@ -13,7 +13,7 @@ export default function EditStudentDialog({
         id="edit-student-dialog"
         className="dialog"
         style={{
-            display: showEditStudent?"flex":"none",
+            display: showDialog?"flex":"none",
         }}>
             <div className="row">
                 <input type="text" value={editName} onChange={(e => {setEditName(e.target.value)})}/>
@@ -30,7 +30,7 @@ export default function EditStudentDialog({
 }
 
 type Props = {
-    showEditStudent: boolean,
+    showDialog: boolean,
     editName: string,
     editDob: string,
     setEditName: Function,
