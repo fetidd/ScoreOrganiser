@@ -21,8 +21,6 @@ export default function StudentList({ students, selected, select, getStudents }:
 
     const [showEditStudent, setShowEditStudent] = useState(false)
     const [editing, setEditing] = useState(null as Student | null)
-    const [editName, setEditName] = useState("")
-    const [editDob, setEditDob] = useState("")
 
     const [showDeleteStudent, setShowDeleteStudent] = useState(false)
     const [deleting, setDeleting] = useState(null as Student | null)
@@ -51,12 +49,12 @@ export default function StudentList({ students, selected, select, getStudents }:
           }
     }
 
-    const editStudentInTauri = async () => { // TODOINVOKE
+    const editStudentInTauri = async (id: string, editName: string, editDob: string) => { // TODOINVOKE
         let splitName = editName.split(" ")
         let last_name = splitName.pop()
         let first_names = splitName.join(" ")
         try {
-            await invoke("edit_student", {update: {id: editing, first_names: first_names, last_name: last_name, date_of_birth: editDob}})
+            await invoke("edit_student", {update: {id: id, first_names: first_names, last_name: last_name, date_of_birth: editDob}})
             console.log("added student") // TODO snackbar
             getStudents()
           } catch (error) {
@@ -99,9 +97,7 @@ export default function StudentList({ students, selected, select, getStudents }:
             select={select}
             selected={selected}
             setShowEditStudent={setShowEditStudent}
-            setEditName={setEditName}
             setEditing={setEditing}
-            setEditDob={setEditDob}
             setShowDeleteStudent={setShowDeleteStudent}
             setDeleting={setDeleting}
             setModal={setModal} 
@@ -111,28 +107,28 @@ export default function StudentList({ students, selected, select, getStudents }:
 
     return (
         <>
-            <div id="StudentList">
-                <div id="menubar-area">
-                    <button className="icon-button dark"onClick={() => {handleAddStudentClick()}}>
-                        <i className="fa-solid fa-plus"></i>
-                    </button>
-                </div>
-                <div id="list-area">
-                    <ul id="student-list">
-                        {rows}
-                    </ul>
-                </div>
-                <div id="import-csv-area">
-                    <div className="row">
-                        <input id="csv-input" type="file" name="csv-input" accept=".csv" onChange={e => {handleFileChange(e)}}/>
-                        <button className="button" onClick={uploadFile}>Upload</button>
-                    </div>
+        <div id="StudentList">
+            <div id="menubar-area">
+                <button className="icon-button dark"onClick={() => {handleAddStudentClick()}}>
+                    <i className="fa-solid fa-plus"></i>
+                </button>
+            </div>
+            <div id="list-area">
+                <ul id="student-list">
+                    {rows}
+                </ul>
+            </div>
+            <div id="import-csv-area">
+                <div className="row">
+                    <input id="csv-input" type="file" name="csv-input" accept=".csv" onChange={e => {handleFileChange(e)}}/>
+                    <button className="button" onClick={uploadFile}>Upload</button>
                 </div>
             </div>
-            <div className="modal" onClick={() => closeModals()} style={{display: modal ? "block" : "none",}}></div>
-            <AddStudentDialog showDialog={showAddStudent} addStudent={addStudentToTauri} closeModals={closeModals} />
-            <EditStudentDialog showDialog={showEditStudent} editName={editName} editDob={editDob} setEditName={setEditName} setEditDob={setEditDob} editStudent={editStudentInTauri} closeModals={closeModals} />
-            <DeleteStudentDialog showDialog={showDeleteStudent} student={deleting}  deleteStudent={deleteStudentFromTauri} closeModals={closeModals} />
+        </div>
+        <div className="modal" onClick={() => closeModals()} style={{display: modal ? "block" : "none",}}></div>
+        <AddStudentDialog showDialog={showAddStudent} addStudent={addStudentToTauri} closeModals={closeModals} />
+        {(editing && <EditStudentDialog showDialog={showEditStudent} student={editing} editStudent={editStudentInTauri} closeModals={closeModals} /> )}
+        {(deleting && <DeleteStudentDialog showDialog={showDeleteStudent} student={deleting}  deleteStudent={deleteStudentFromTauri} closeModals={closeModals} /> )}
         </>
     )
 }

@@ -1,10 +1,6 @@
 import { useState } from "react"
 
-export default function AddStudentDialog({
-    showDialog,
-    addStudent,
-    closeModals,
-}: Props) {
+export default function AddStudentDialog({showDialog, addStudent, closeModals}: Props) {
 
     const [addName, setAddName] = useState("")
     const [addDob, setAddDob] = useState("")
@@ -25,12 +21,7 @@ export default function AddStudentDialog({
     }
 
     return (
-        <div 
-        id="add-student-dialog"
-        className="dialog"
-        style={{
-            display: showDialog?"flex":"none",
-        }}>
+        <div id="add-student-dialog" className="dialog" style={{display: showDialog?"flex":"none"}}>
             <div className="row">
                 <input type="text" value={addName} onChange={(e => {setAddName(e.target.value)})}/>
                 <input type="date" value={addDob} onChange={(e => {setAddDob(e.target.value)})}/>

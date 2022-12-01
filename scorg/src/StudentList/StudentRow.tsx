@@ -7,9 +7,7 @@ interface Props {
     select: Function,
     selected: string,
     setShowEditStudent: Function,
-    setEditName: Function,
     setEditing: Function,
-    setEditDob: Function,
     setShowDeleteStudent: Function,
     setDeleting: Function,
     setModal: Function,
@@ -20,9 +18,7 @@ export default function StudentRow({
     select,
     selected,
     setShowEditStudent,
-    setEditName,
     setEditing,
-    setEditDob,
     setShowDeleteStudent,
     setDeleting,
     setModal,
@@ -38,8 +34,6 @@ export default function StudentRow({
         e.stopPropagation()
         setModal(true)
         setEditing(student)
-        setEditName(`${student.first_names} ${student.last_name}`)
-        setEditDob(student.date_of_birth)
         setShowEditStudent(true)
     }
 
