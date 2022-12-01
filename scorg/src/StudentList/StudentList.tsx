@@ -5,6 +5,7 @@ import StudentRow from "./StudentRow";
 
 export default function StudentList({ students, setStudents, selected, select, getStudents }: Props) {
     const [idCount, setIdCount] = useState(5)
+
     const [hasContextFocus, setHasContextFocus] = useState("")
     const [modal, setModal] = useState(false)
     const [showAddStudent, setShowAddStudent] = useState(false)
@@ -66,8 +67,6 @@ export default function StudentList({ students, setStudents, selected, select, g
                 student={student}
                 select={select}
                 selected={selected}
-                hasContextFocus={hasContextFocus}
-                setHasContextFocus={setHasContextFocus}
                 showEditStudent={showEditStudent}
                 setShowEditStudent={setShowEditStudent}
                 editName={editName}

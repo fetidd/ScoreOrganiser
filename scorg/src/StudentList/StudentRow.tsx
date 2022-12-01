@@ -1,3 +1,4 @@
+import { useState } from "react";
 import DeleteStudentDialog from "./dialogs/DeleteStudent";
 import EditStudentDialog from "./dialogs/EditStudent";
 import { Student } from "./Student";
@@ -6,8 +7,6 @@ export default function StudentRow ({
     student,
     select,
     selected,
-    hasContextFocus,
-    setHasContextFocus,
     showEditStudent,
     setShowEditStudent,
     editName,
@@ -27,6 +26,9 @@ export default function StudentRow ({
     closeModals,
     setModal,
 }: Props) {
+
+    const [hasContextFocus, setHasContextFocus] = useState(false)
+
     const isSelected = student.id === selected;
     let classes = "student-row"
     if (isSelected) classes += " selected"
@@ -40,10 +42,10 @@ export default function StudentRow ({
                 onContextMenu={e => {
                     e.preventDefault()
                     select(student.id)
-                    setHasContextFocus(student.id)
+                    setHasContextFocus(true)
                 }}
                 onMouseLeave={() => {
-                    setHasContextFocus("")
+                    setHasContextFocus(false)
                 }}
             >
                 <span
@@ -54,7 +56,7 @@ export default function StudentRow ({
                 <button
                     className="icon-button"
                     style={{
-                        display: (hasContextFocus === student.id) ? "block" : "none",
+                        display: (hasContextFocus) ? "block" : "none",
                         justifySelf: "end"
                     }}
                     onClick={e => {
@@ -69,7 +71,7 @@ export default function StudentRow ({
                 <button
                     className="icon-button red"
                     style={{
-                        display: (hasContextFocus === student.id) ? "block" : "none",
+                        display: (hasContextFocus) ? "block" : "none",
                         justifySelf: "end"
                     }}
                     onClick={e => {
@@ -111,8 +113,6 @@ type Props = {
     student: Student,
     select: Function,
     selected: string,
-    hasContextFocus: string,
-    setHasContextFocus: Function,
 
     showEditStudent: boolean,
     setShowEditStudent: Function,
