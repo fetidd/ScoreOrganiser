@@ -61,17 +61,12 @@ export default function StudentList({ students, setStudents, selected, select, g
 
     const rows = students.map(student => {
         const isSelected = student.id === selected;
+        let classes = "student-row"
+        if (isSelected) classes += " selected"
         return (
             <li key={student.id}>
                 <div
-                    style={{
-                        backgroundColor: isSelected ? "#28262b" : "#eee",
-                        color: isSelected ? "white" : "black",
-                        display: "flex",
-                        alignItems: "center",
-                        height: "30px",
-                    }}
-                    className="student-row"
+                    className={classes}
                     onClick={() => {
                         select(student.id)
                     }}

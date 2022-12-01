@@ -38,7 +38,7 @@ ul {
 
 .icon-button {
   margin-left: 5px;
-  border: 1.5px solid #eee;
+  border: none;
   appearance: none;
   background-color: transparent;
   border-radius: 100%;
@@ -137,6 +137,9 @@ ul {
   min-height: 100%;
 }
 #StudentList .student-row {
+  display: flex;
+  align-items: center;
+  height: 30px;
   padding: 5px 10px;
   margin-top: 5px;
   border-radius: 50px;
@@ -149,7 +152,12 @@ ul {
   text-overflow: ellipsis;
 }
 #StudentList .student-row:hover {
+  background-color: #eee;
   cursor: pointer;
+}
+#StudentList .student-row.selected {
+  background-color: #28262b;
+  color: #eee;
 }
 
 #import-csv-area {
@@ -166,18 +174,6 @@ ul {
   grid-template-rows: 150px 1fr 100px;
   border: solid 1px cyan;
   gap: 5px;
-}
-
-.snackbar {
-  margin: 0 auto;
-  display: none;
-}
-.snackbar .show {
-  display: flex;
-}
-.snackbar .red {
-  background-color: #ba2525;
-  color: #fff;
 }
 
 /*# sourceMappingURL=App.css.map */
