@@ -41,8 +41,8 @@ export default function StudentRow({
         e.stopPropagation()
         setModal(true)
         setEditing(student.id)
-        setEditName(student.name)
-        setEditDob(student.dob)
+        setEditName(`${student.first_names} ${student.last_name}`)
+        setEditDob(student.date_of_birth)
         setShowEditStudent(true)
     }
 
@@ -50,8 +50,7 @@ export default function StudentRow({
         e.stopPropagation()
         setModal(true)
         setDeleting(student.id)
-        const splitName = student.name.split(" ")
-        setDeleteConfirmationTarget(splitName[splitName.length - 1])
+        setDeleteConfirmationTarget(student.last_name)
         setShowDeleteStudent(true)
     }
 
@@ -64,7 +63,7 @@ export default function StudentRow({
     return (
         <li>
             <div className={classes} onClick={() => {select(student.id)}} onContextMenu={e => {handleRightClick(e)}} onMouseLeave={() => {setHasContextFocus(false)}} >
-                <span>{student.name}</span>
+                <span>{`${student.first_names} ${student.last_name}`}</span>
                 <button className="icon-button" style={{display: (hasContextFocus) ? "block" : "none", justifySelf: "end"}} onClick={e => {handleEditClick(e)}}>
                     <i className="fa-solid fa-pen"></i>
                 </button>

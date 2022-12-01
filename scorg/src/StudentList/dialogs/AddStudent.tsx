@@ -1,12 +1,14 @@
+import { useState } from "react"
+
 export default function AddStudentDialog({
     showAddStudent,
-    addName,
-    setAddName,
-    addDob,
-    setAddDob,
     addStudent,
     closeModals,
 }: Props) {
+
+    const [addName, setAddName] = useState("")
+    const [addDob, setAddDob] = useState("")
+
     return (
         <div 
         id="add-student-dialog"
@@ -19,9 +21,12 @@ export default function AddStudentDialog({
                 <input type="date" value={addDob} onChange={(e => {setAddDob(e.target.value)})}/>
                 <button onClick={() => {
                     console.log(`adding ${addName} ${addDob}`)
+                    let splitName = addName.split(" ")
+                    let last_name = splitName.pop()
+                    let first_names = splitName.join(" ")
+                    addStudent(first_names, last_name, addDob)
                     setAddName("")
                     setAddDob("")
-                    addStudent()
                     closeModals()
                 }}>Add</button>
             </div>
@@ -31,10 +36,6 @@ export default function AddStudentDialog({
 
 type Props = {
     showAddStudent: boolean,
-    addName: string,
-    setAddName: Function,
-    addDob: string,
-    setAddDob: Function,
     addStudent: Function,
     closeModals: Function,
 }

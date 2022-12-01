@@ -1,1 +1,1 @@
-export type Student = {id: string, name: string, dob: string}
+export type Student = {id: string, first_names: string, last_name: string, date_of_birth: string}

@@ -6,6 +6,7 @@
 use log::*;
 use scorg_lib::{
     constant::DB_FILE,
+    errors::Error,
     database::{Dao, SqliteDao},
     importer::Importer,
     models::{SafmedScore, Student},
@@ -56,11 +57,11 @@ fn main() {
 
 // STUDENT COMMANDS
 #[tauri::command]
-fn all_students(service: State<Arc<StudentService>>) -> Result<Vec<Student>, String> {
+fn all_students(service: State<Arc<StudentService>>) -> Result<Vec<Student>, Error> {
     debug!("received request for all students");
     match service.all() {
         Ok(students) => Ok(students),
-        Err(error) => Err(error.to_string()),
+        Err(error) => Err(error),
     }
 }
 
@@ -70,18 +71,18 @@ fn add_student(
     last_name: String,
     date_of_birth: String,
     service: State<Arc<StudentService>>,
-) -> Result<String, String> {
+) -> Result<String, Error> {
     debug!(
         "recieved student to add: {} {} {}",
         &first_names, &last_name, &date_of_birth
     );
     let new_student = match Student::new(&first_names, &last_name, &date_of_birth) {
         Ok(student) => student,
-        Err(error) => return Err(error.to_string()),
+        Err(error) => return Err(error),
     };
     match service.add_student(&new_student) {
         Ok(_num) => Ok(new_student.id.to_owned()),
-        Err(error) => Err(error.to_string()),
+        Err(error) => Err(error),
     }
 }
 
