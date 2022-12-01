@@ -145,6 +145,7 @@ ul {
   border-radius: 50px;
 }
 #StudentList .student-row span {
+  flex-grow: 1;
   display: inline-block;
   white-space: nowrap;
   height: 1em;

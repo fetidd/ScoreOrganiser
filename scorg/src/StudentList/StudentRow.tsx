@@ -7,6 +7,7 @@ export default function StudentRow ({
     student,
     select,
     selected,
+
     showEditStudent,
     setShowEditStudent,
     editName,
@@ -48,11 +49,7 @@ export default function StudentRow ({
                     setHasContextFocus(false)
                 }}
             >
-                <span
-                    style={{
-                        flexGrow: "1",
-                    }}
-                >{student.name}</span>
+                <span>{student.name}</span>
                 <button
                     className="icon-button"
                     style={{

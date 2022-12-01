@@ -153,6 +153,7 @@ ul {
         margin-top: 5px;
         border-radius: 50px;
         span {
+            flex-grow: 1;
             display: inline-block;
             white-space: nowrap;
             height: 1em;
