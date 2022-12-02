@@ -41,7 +41,7 @@ type CliResult = Result<(), String>;
 
 fn main() -> CliResult {
     TermLogger::init(
-        LevelFilter::Debug,
+        LevelFilter::Info,
         Config::default(),
         TerminalMode::Mixed,
         ColorChoice::Auto,
@@ -58,7 +58,10 @@ fn main() -> CliResult {
     match args.action {
         Actions::All => students
             .all()
-            .and_then(|_| Ok(()))
+            .and_then(|st| {
+                println!("{st:#?}");
+                Ok(())
+            })
             .or_else(|e| Err(e.to_string())),
         Actions::AddStudent {
             name,
