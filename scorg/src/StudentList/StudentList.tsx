@@ -28,11 +28,10 @@ export default function StudentList({ students, selected, select, getStudents }:
     const addStudentToTauri = async (firstNames: string, lastName: string, dateOfBirth: string) => { // TODOINVOKE
         try {
             await invoke("add_student", { firstNames, lastName, dateOfBirth })
-            console.log("added student") // TODO snackbar
+            snackbarCtx.info("added student") // TODO snackbar
             getStudents()
         } catch (error) {
-            console.error("failed to add student") // TODO snackbar
-            console.error(error)
+            snackbarCtx.info("failed to add student") // TODO snackbar
         }
     }
 
@@ -77,7 +76,6 @@ export default function StudentList({ students, selected, select, getStudents }:
     useEffect(() => { getStudents() }, [])
 
     function handleAddStudentClick() {
-        snackbarCtx.displayMsg("Adding student")
         setModal(true)
         setShowAddStudent(true)
     }
@@ -116,12 +114,6 @@ export default function StudentList({ students, selected, select, getStudents }:
                     <ul id="student-list">
                         {rows}
                     </ul>
-                </div>
-                <div id="import-csv-area">
-                    <div className="row">
-                        <input id="csv-input" type="file" name="csv-input" accept=".csv" onChange={e => { handleFileChange(e) }} />
-                        <button className="button" onClick={uploadFile}>Upload</button>
-                    </div>
                 </div>
             </div>
             <div className="modal" onClick={() => closeModals()} style={{ display: modal ? "block" : "none", }}></div>

@@ -5,9 +5,12 @@ interface Props {
 }
 
 const SnackbarContext = React.createContext({
+  level: "",
   msg: "",
   isDisplayed: false,
-  displayMsg: (msg: string) => { },
+  info: (msg: string) => { },
+  error: (msg: string) => { },
+  success: (msg: string) => { },
   onClose: () => { },
 });
 
@@ -15,17 +18,34 @@ export default SnackbarContext;
 
 let timer: NodeJS.Timeout;
 
-export const SnackBarContextProvider = ({children}: Props) => {
+export const SnackBarContextProvider = ({ children }: Props) => {
   const [msg, setMsg] = useState("");
   const [isDisplayed, setIsDisplayed] = useState(false);
+  const [level, setLevel] = useState("")
 
-  const displayHandler = (msg: string) => {
+  const displayInfo = (msg: string) => {
+    setLevel("info")
+    _display(msg)
+  };
+
+  const displayError = (msg: string) => {
+    setLevel("error")
+    _display(msg)
+  }
+
+  const displaySuccess = (msg: string) => {
+    setLevel("success")
+    _display(msg)
+  }
+
+  const _display = (msg: string) => {
     setMsg(msg);
     setIsDisplayed(true);
     timer = setTimeout(() => {
       setIsDisplayed(false);
     }, 3000); // close snackbar after 3 seconds
-  };
+
+  }
 
   const closeHandler = () => {
     clearTimeout(timer)
@@ -35,9 +55,12 @@ export const SnackBarContextProvider = ({children}: Props) => {
   return (
     <SnackbarContext.Provider
       value={{
+        level,
         msg,
         isDisplayed,
-        displayMsg: displayHandler,
+        info: displayInfo,
+        error: displayError,
+        success: displaySuccess,
         onClose: closeHandler,
       }}
     >

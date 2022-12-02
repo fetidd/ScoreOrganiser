@@ -5,6 +5,7 @@ import StudentList from "./StudentList/StudentList";
 import { Student } from "./StudentList/Student";
 import SnackbarContext from "./snackbar-context";
 import SnackBar from "./Snackbar";
+import ScoreTabs from "./ScoreTabs/ScoreTabs";
 
 function App() {
   const [selected, setSelected] = useState("")
@@ -25,7 +26,9 @@ function App() {
       <div id="student-list-area">
         <StudentList students={students} selected={selected} select={setSelected} getStudents={getStudentsFromTauri} />
       </div>
-      <div id="score-tab-area"></div>
+      <div id="score-tab-area">
+        <ScoreTabs />
+      </div>
       {snackbarCtx.isDisplayed && <SnackBar />}
     </div>
   );

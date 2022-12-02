@@ -5,10 +5,17 @@ import "./Snackbar.css"
 const Snackbar = () => {
   const ctx = useContext(SnackbarContext)
 
+  const colors = (lvl: string) => {
+    return {
+      "success": "green",
+      "error": "red",
+      "info": "blue",
+    }[lvl]
+  }
+
   return (
-    <div className="snackbar__container">
+    <div className="snackbar__container" onClick={ctx.onClose} style={{ backgroundColor: colors(ctx.level) }}>
       <div className="snackbar__label">{ctx.msg}</div>
-      <div className="snackbar__dismiss" onClick={ctx.onClose}>&times;</div>
     </div>
   );
 };

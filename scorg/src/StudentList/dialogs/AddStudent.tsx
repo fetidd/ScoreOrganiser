@@ -1,37 +1,55 @@
-import { useState } from "react"
+import { useRef, useContext } from "react"
+import SnackbarContext from "../../snackbar-context"
 
-export default function AddStudentDialog({showDialog, addStudent, closeModals}: Props) {
+export default function AddStudentDialog({ showDialog, addStudent, closeModals }: Props) {
+    const nameInput = useRef<HTMLInputElement>(null)
+    const dobInput = useRef<HTMLInputElement>(null)
+    const snackCtx = useContext(SnackbarContext)
 
-    const [addName, setAddName] = useState("")
-    const [addDob, setAddDob] = useState("")
+    function clearInputs() {
+        nameInput.current!.value = ""
+        dobInput.current!.value = ""
+    }
 
     function handleAdd() {
-        console.log(`adding ${addName} ${addDob}`)
-        if (addName.trim() === "" || addDob.trim() === "") {
-            console.error(`invalid add student input: name="${addName}" dob="${addDob}"`) // TODO snackbar
-        } else {          
+        let addName: string = nameInput.current!.value.trim()
+        let addDob: string = dobInput.current!.value.trim()
+        if (addName === "" || addDob === "") {
+            snackCtx.error(`invalid add student input: name="${addName}" dob="${addDob}"`)
+        } else {
             let splitName = addName.split(" ")
             let last_name = splitName.pop()
             let first_names = splitName.join(" ")
             addStudent(first_names, last_name, addDob)
-            setAddName("")
-            setAddDob("")
+            clearInputs()
             closeModals()
         }
     }
 
     return (
-        <div id="add-student-dialog" className="dialog" style={{display: showDialog?"flex":"none"}}>
+        <div id="add-student-dialog" className="dialog" style={{ display: showDialog ? "flex" : "none" }}>
+            <div className="topbar">
+                <i className="fa fa-close" onClick={() => {
+                    clearInputs()
+                    closeModals()
+                }} />
+            </div>
             <div className="row">
-                <input type="text" value={addName} onChange={(e => {setAddName(e.target.value)})}/>
-                <input type="date" value={addDob} onChange={(e => {setAddDob(e.target.value)})}/>
-                <button onClick={handleAdd}>Add</button>
+                <label>Name</label>
+                <input type="text" ref={nameInput} />
+            </div>
+            <div className="row">
+                <label>Date of birth</label>
+                <input type="date" ref={dobInput} />
+            </div>
+            <div className="row">
+                <button className="button wide" onClick={handleAdd}>Add</button>
             </div>
         </div>
     )
 }
 
-type Props = {
+interface Props {
     showDialog: boolean,
     addStudent: Function,
     closeModals: Function,
