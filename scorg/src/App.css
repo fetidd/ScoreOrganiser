@@ -57,8 +57,7 @@ ul {
   border-color: #ba2525;
 }
 .icon-button.dark {
-  background-color: #28262b;
-  border-color: #28262b;
+  color: #28262b;
 }
 
 .row {

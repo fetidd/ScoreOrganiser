@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 
+interface Props {
+  children: any
+}
+
 const SnackbarContext = React.createContext({
   msg: "",
   isDisplayed: false,
@@ -9,9 +13,9 @@ const SnackbarContext = React.createContext({
 
 export default SnackbarContext;
 
-let timer;
+let timer: NodeJS.Timeout;
 
-export const SnackBarContextProvider = (props) => {
+export const SnackBarContextProvider = ({children}: Props) => {
   const [msg, setMsg] = useState("");
   const [isDisplayed, setIsDisplayed] = useState(false);
 
@@ -37,7 +41,7 @@ export const SnackBarContextProvider = (props) => {
         onClose: closeHandler,
       }}
     >
-      {props.children}
+      {children}
     </SnackbarContext.Provider>
   );
 };
