@@ -84,7 +84,7 @@ export default function StudentList({ students, selected, select, getStudents, a
     };
 
     useEffect(() => { getStudents() }, [])
-    useEffect(() => { handleFilterChange()}, [students])
+    // useEffect(() => { handleFilterChange()}, [students])
 
     return (
         <>
@@ -92,9 +92,6 @@ export default function StudentList({ students, selected, select, getStudents, a
                 <div id="menubar-area">
                     <div className="row">
                         <input ref={filterInput} type="text" onChange={handleFilterChange}></input>
-                        <button className="icon-button dark" onClick={handleFilterChange}>
-                            <i className="fa-solid fa-filter"></i>
-                        </button>
                         <button className="icon-button dark" onClick={handleAddStudentClick}>
                             <i className="fa-solid fa-plus"></i>
                         </button>

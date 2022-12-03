@@ -208,7 +208,7 @@ input {
     display: grid;
     grid-area: score-tabs-area;
     grid-template-columns: 1fr;
-    grid-template-rows: 50px 1fr;
+    grid-template-rows: 50px 100%;
     grid-template-areas: "tabs" "content";
     gap: 5px;
 
@@ -242,7 +242,16 @@ input {
 
     .content {
         grid-area: content;
-        background-color: cyan;
+        // background-color: cyan;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+
+        .chart {
+            flex-grow: 1;
+        }
     }
 
 }

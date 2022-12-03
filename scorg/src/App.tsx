@@ -58,6 +58,14 @@ function App() {
     }
   }
 
+  const getSafmedPlot = () => {
+    let plot; 
+    invoke("plot_safmed_scores", { id: selected })
+      .then(pl => plot = pl)
+      .catch(error => snackbarCtx.error(`failed to get safmed plot: ${error!.toString()}`))
+    return plot
+  }
+
   const applyFilter = (filter: string) => {
     console.log(`filtering on ${filter}`)
     setStudents(studentCache.filter(st => `${st.first_names} ${st.last_name}`.toLowerCase().includes(filter.toLowerCase())))
@@ -70,7 +78,7 @@ function App() {
         <StudentList students={students} selected={selected} select={setSelected} getStudents={getStudentsFromTauri} addStudent={addStudentToTauri} deleteStudent={deleteStudentFromTauri} editStudent={editStudentInTauri} applyFilter={applyFilter} />
       </div>
       <div id="score-tab-area">
-        <ScoreTabs />
+        <ScoreTabs id={selected} getSafmedPlot={getSafmedPlot} />
       </div>
       {snackbarCtx.isDisplayed && <SnackBar />}
     </div>
