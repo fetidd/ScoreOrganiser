@@ -25,38 +25,36 @@ export default function StudentList({ students, selected, select, getStudents }:
     const [file, setFile] = useState(null as File | null)
     const snackbarCtx = useContext(SnackbarContext)
 
-    const addStudentToTauri = async (firstNames: string, lastName: string, dateOfBirth: string) => { // TODOINVOKE
+    const addStudentToTauri = async (firstNames: string, lastName: string, dateOfBirth: string) => {
         try {
             await invoke("add_student", { firstNames, lastName, dateOfBirth })
-            snackbarCtx.info("added student") // TODO snackbar
+            snackbarCtx.success(`added ${firstNames} ${lastName}`)
             getStudents()
         } catch (error) {
-            snackbarCtx.info("failed to add student") // TODO snackbar
+            snackbarCtx.error(`failed to add student: ${error!.toString()}`)
         }
     }
 
-    const deleteStudentFromTauri = async (id: string) => { // TODOINVOKE
+    const deleteStudentFromTauri = async (id: string) => {
         try {
             await invoke("delete_student", { id })
-            console.log("added student") // TODO snackbar
+            snackbarCtx.success("deleted student")
             getStudents()
         } catch (error) {
-            console.error("failed to delete student") // TODO snackbar
-            console.error(error)
+            snackbarCtx.error(`failed to delete student: ${error!.toString()}`)
         }
     }
 
-    const editStudentInTauri = async (id: string, editName: string, editDob: string) => { // TODOINVOKE
+    const editStudentInTauri = async (id: string, editName: string, editDob: string) => {
         let splitName = editName.split(" ")
         let last_name = splitName.pop()
         let first_names = splitName.join(" ")
         try {
             await invoke("edit_student", { update: { id: id, first_names: first_names, last_name: last_name, date_of_birth: editDob } })
-            console.log("added student") // TODO snackbar
+            snackbarCtx.success("edited student")
             getStudents()
         } catch (error) {
-            console.error("failed to edit student") // TODO snackbar
-            console.error(error)
+            snackbarCtx.error(`failed to edit student: ${error!.toString()}`)
         }
     }
 
@@ -68,7 +66,7 @@ export default function StudentList({ students, selected, select, getStudents }:
     }
 
     const uploadFile = () => {
-        console.log(file);
+        snackbarCtx.info(file!.toString());
         (document.querySelector("#csv-input") as HTMLInputElement).value = ""
         setFile(null)
     }

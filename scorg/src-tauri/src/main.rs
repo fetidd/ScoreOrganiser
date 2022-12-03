@@ -80,10 +80,7 @@ fn add_student(
         Ok(student) => student,
         Err(error) => return Err(error),
     };
-    match service.add_student(&new_student) {
-        Ok(_num) => Ok(new_student.id.to_owned()),
-        Err(error) => Err(error),
-    }
+    service.add_student(&new_student).and_then(|_| Ok(new_student.id.to_owned()))
 }
 
 #[tauri::command]
@@ -109,11 +106,8 @@ fn delete_student(
 }
 
 #[tauri::command]
-fn edit_student(update: Student, service: State<Arc<StudentService>>) -> Result<(), Error> {
-    match service.update_student(&update) {
-        Ok(_) => Ok(()),
-        Err(error) => Err(error),
-    }
+fn edit_student(update: Student, service: State<Arc<StudentService>>) -> Result<usize, Error> {
+    service.update_student(&update)
 }
 
 // SCORE COMMANDS

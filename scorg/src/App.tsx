@@ -17,7 +17,7 @@ function App() {
       let students: Student[] = await invoke("all_students")
       setStudents(students)
     } catch (error) {
-      console.error("failed to get students") // TODO snackbar
+      snackbarCtx.error(`failed to get students: ${error!.toString()}`)
     }
   }
 
