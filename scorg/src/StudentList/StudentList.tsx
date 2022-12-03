@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/tauri";
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import SnackbarContext from "../snackbar-context";
 import AddStudentDialog from "./dialogs/AddStudent";
 import DeleteStudentDialog from "./dialogs/DeleteStudent";
@@ -12,10 +12,14 @@ interface Props {
     students: Student[],
     selected: string,
     select: Function,
-    getStudents: Function
+    getStudents: Function,
+    addStudent: Function,
+    deleteStudent: Function,
+    editStudent: Function,
+    applyFilter: Function
 }
 
-export default function StudentList({ students, selected, select, getStudents }: Props) {
+export default function StudentList({ students, selected, select, getStudents, applyFilter, addStudent, deleteStudent, editStudent }: Props) {
     const [modal, setModal] = useState(false)
     const [showAddStudent, setShowAddStudent] = useState(false)
     const [showEditStudent, setShowEditStudent] = useState(false)
@@ -25,38 +29,9 @@ export default function StudentList({ students, selected, select, getStudents }:
     const [file, setFile] = useState(null as File | null)
     const snackbarCtx = useContext(SnackbarContext)
 
-    const addStudentToTauri = async (firstNames: string, lastName: string, dateOfBirth: string) => {
-        try {
-            await invoke("add_student", { firstNames, lastName, dateOfBirth })
-            snackbarCtx.success(`added ${firstNames} ${lastName}`)
-            getStudents()
-        } catch (error) {
-            snackbarCtx.error(`failed to add student: ${error!.toString()}`)
-        }
-    }
+    const filterInput = useRef<HTMLInputElement>(null)
 
-    const deleteStudentFromTauri = async (id: string) => {
-        try {
-            await invoke("delete_student", { id })
-            snackbarCtx.success("deleted student")
-            getStudents()
-        } catch (error) {
-            snackbarCtx.error(`failed to delete student: ${error!.toString()}`)
-        }
-    }
-
-    const editStudentInTauri = async (id: string, editName: string, editDob: string) => {
-        let splitName = editName.split(" ")
-        let last_name = splitName.pop()
-        let first_names = splitName.join(" ")
-        try {
-            await invoke("edit_student", { update: { id: id, first_names: first_names, last_name: last_name, date_of_birth: editDob } })
-            snackbarCtx.success("edited student")
-            getStudents()
-        } catch (error) {
-            snackbarCtx.error(`failed to edit student: ${error!.toString()}`)
-        }
-    }
+    
 
     const closeModals = () => {
         setShowAddStudent(false)
@@ -71,11 +46,16 @@ export default function StudentList({ students, selected, select, getStudents }:
         setFile(null)
     }
 
-    useEffect(() => { getStudents() }, [])
+    
 
     function handleAddStudentClick() {
         setModal(true)
         setShowAddStudent(true)
+    }
+
+    function handleFilterChange() {
+        let filter = filterInput.current!.value
+        applyFilter(filter)
     }
 
     function handleFileChange(e: React.FormEvent) {
@@ -85,39 +65,52 @@ export default function StudentList({ students, selected, select, getStudents }:
         }
     }
 
-    const rows = students.map(student => {
-        return (
-            <StudentRow key={student.id}
-                student={student}
-                select={select}
-                selected={selected}
-                setShowEditStudent={setShowEditStudent}
-                setEditing={setEditing}
-                setShowDeleteStudent={setShowDeleteStudent}
-                setDeleting={setDeleting}
-                setModal={setModal}
-            />
-        )
-    });
+    const rows = () => {
+        let rows = students.map(student => {
+            return (
+                <StudentRow key={student.id}
+                    student={student}
+                    select={select}
+                    selected={selected}
+                    setShowEditStudent={setShowEditStudent}
+                    setEditing={setEditing}
+                    setShowDeleteStudent={setShowDeleteStudent}
+                    setDeleting={setDeleting}
+                    setModal={setModal}
+                />
+            )
+        })
+        return rows
+    };
+
+    useEffect(() => { getStudents() }, [])
+    useEffect(() => { handleFilterChange()}, [students])
 
     return (
         <>
             <div id="StudentList">
                 <div id="menubar-area">
-                    <button className="icon-button dark" onClick={() => { handleAddStudentClick() }}>
-                        <i className="fa-solid fa-plus"></i>
-                    </button>
+                    <div className="row">
+                        <input ref={filterInput} type="text" onChange={handleFilterChange}></input>
+                        <button className="icon-button dark" onClick={handleFilterChange}>
+                            <i className="fa-solid fa-filter"></i>
+                        </button>
+                        <button className="icon-button dark" onClick={handleAddStudentClick}>
+                            <i className="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
                 </div>
                 <div id="list-area">
                     <ul id="student-list">
-                        {rows}
+                        {rows()}
                     </ul>
                 </div>
+                <div id="list-bottom-bar-area"></div>
             </div>
             <div className="modal" onClick={() => closeModals()} style={{ display: modal ? "block" : "none", }}></div>
-            <AddStudentDialog showDialog={showAddStudent} addStudent={addStudentToTauri} closeModals={closeModals} />
-            {(editing && <EditStudentDialog showDialog={showEditStudent} student={editing} editStudent={editStudentInTauri} closeModals={closeModals} />)}
-            {(deleting && <DeleteStudentDialog showDialog={showDeleteStudent} student={deleting} deleteStudent={deleteStudentFromTauri} closeModals={closeModals} />)}
+            <AddStudentDialog showDialog={showAddStudent} addStudent={addStudent} closeModals={closeModals} />
+            {(editing && <EditStudentDialog showDialog={showEditStudent} student={editing} editStudent={editStudent} closeModals={closeModals} />)}
+            {(deleting && <DeleteStudentDialog showDialog={showDeleteStudent} student={deleting} deleteStudent={deleteStudent} closeModals={closeModals} />)}
         </>
     )
 }

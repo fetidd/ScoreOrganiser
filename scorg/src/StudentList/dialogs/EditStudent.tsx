@@ -1,23 +1,32 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Student } from "../Student"
 
 export default function EditStudentDialog({showDialog, editStudent, closeModals, student}: Props) {
 
-    const [editName, setEditName] = useState(`${student!.first_names} ${student!.last_name}`)
-    const [editDob, setEditDob] = useState(student!.date_of_birth)
+    const nameInput = useRef<HTMLInputElement>(null)
+    const dobInput = useRef<HTMLInputElement>(null)
+
+    function clearInputs() {
+        nameInput.current!.value = ""
+        dobInput.current!.value = ""
+    }
 
     function handleEdit() {
-        editStudent(student!.id, editName, editDob)
-        setEditName("")
-        setEditDob("")
+        editStudent(student!.id, nameInput.current!.value, dobInput.current!.value)
+        clearInputs()
         closeModals()
     }
+
+    useEffect(() => {
+        nameInput.current!.value = `${student!.first_names} ${student!.last_name}`
+        dobInput.current!.value = student!.date_of_birth
+    }, [student])
 
     return (
         <div id="edit-student-dialog" className="dialog" style={{display: showDialog?"flex":"none"}}>
             <div className="row">
-                <input type="text" value={editName} onChange={(e => {setEditName(e.target.value)})}/>
-                <input type="date" value={editDob} onChange={(e => {setEditDob(e.target.value)})}/>
+                <input type="text" ref={nameInput} />
+                <input type="date" ref={dobInput} />
                 <button onClick={handleEdit}>Save</button>
             </div>
         </div>

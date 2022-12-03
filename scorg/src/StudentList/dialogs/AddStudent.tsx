@@ -1,4 +1,4 @@
-import { useRef, useContext } from "react"
+import { useRef, useContext, useEffect } from "react"
 import SnackbarContext from "../../snackbar-context"
 
 export default function AddStudentDialog({ showDialog, addStudent, closeModals }: Props) {
@@ -10,6 +10,12 @@ export default function AddStudentDialog({ showDialog, addStudent, closeModals }
         nameInput.current!.value = ""
         dobInput.current!.value = ""
     }
+
+    useEffect(() => {
+        if (showDialog) {
+            document.getElementById("name-input")?.focus()
+        }
+    }, [showDialog])
 
     function handleAdd() {
         let addName: string = nameInput.current!.value.trim()
@@ -36,7 +42,7 @@ export default function AddStudentDialog({ showDialog, addStudent, closeModals }
             </div>
             <div className="row">
                 <label>Name</label>
-                <input type="text" ref={nameInput} />
+                <input id="name-input" type="text" ref={nameInput} />
             </div>
             <div className="row">
                 <label>Date of birth</label>

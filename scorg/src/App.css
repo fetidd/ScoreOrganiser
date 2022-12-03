@@ -27,8 +27,6 @@ input[type=date] {
   height: 100%;
   min-height: 100vh;
   box-sizing: border-box;
-  overflow-x: hidden;
-  overflow-y: hidden;
   display: grid;
   grid-template-columns: 300px 1fr;
   grid-template-rows: 1fr;
@@ -146,6 +144,7 @@ input[type=date] {
   justify-content: stretch;
   gap: 5px;
   min-height: 100%;
+  max-height: 100px;
 }
 #StudentList #menubar-area {
   display: flex;
@@ -155,10 +154,12 @@ input[type=date] {
 }
 #StudentList #list-area {
   flex-grow: 1;
+  overflow: auto;
 }
 #StudentList #student-list {
   height: 100%;
   min-height: 100%;
+  max-height: 100%;
 }
 #StudentList .student-row {
   display: flex;
@@ -200,6 +201,7 @@ input[type=date] {
   padding: 5px;
   gap: 5px;
   align-items: center;
+  cursor: pointer;
 }
 #ScoreTabs #tabs .tab {
   display: flex;
