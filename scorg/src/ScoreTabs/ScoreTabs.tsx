@@ -1,7 +1,7 @@
 import { useState } from "react"
 import SafmedContent from "./SafmedContent"
 
-export default function ScoreTabs({ }) {
+export default function ScoreTabs({ selected }: Props) {
   const [currentTab, setCurrentTab] = useState("")
 
   function switchTab(tab: string) {
@@ -16,9 +16,13 @@ export default function ScoreTabs({ }) {
         <div className={currentTab === "reading" ? "tab selected" : "tab"} onClick={() => switchTab("reading")}><span>Reading</span></div>
       </div>
       <div id="content">
-        {currentTab === "safmeds" && <SafmedContent id="st1" />}
+        {currentTab === "safmeds" && <SafmedContent id={selected} currentTab={currentTab} />}
         {currentTab === "writing" && <span>WritingContent</span>}
       </div>
     </div>
   )
+}
+
+interface Props {
+  selected: string,
 }

@@ -31,8 +31,6 @@ export default function StudentList({ students, selected, select, getStudents, a
 
   const filterInput = useRef<HTMLInputElement>(null)
 
-
-
   const closeModals = () => {
     setShowAddStudent(false)
     setShowEditStudent(false)
@@ -45,8 +43,6 @@ export default function StudentList({ students, selected, select, getStudents, a
     (document.querySelector("#csv-input") as HTMLInputElement).value = ""
     setFile(null)
   }
-
-
 
   function handleAddStudentClick() {
     setModal(true)
@@ -91,9 +87,9 @@ export default function StudentList({ students, selected, select, getStudents, a
         <div id="menubar-area">
           <div className="row">
             <input ref={filterInput} type="text" onChange={handleFilterChange}></input>
-            <button className="icon-button dark" onClick={handleFilterChange}>
+            {/* <button className="icon-button dark" onClick={handleFilterChange}>
               <i className="fa-solid fa-filter"></i>
-            </button>
+            </button> */}
             <button className="icon-button dark" onClick={handleAddStudentClick}>
               <i className="fa-solid fa-plus"></i>
             </button>

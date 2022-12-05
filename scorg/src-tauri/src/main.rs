@@ -48,7 +48,7 @@ fn main() {
             delete_student,
             edit_student,
             add_safmed_score,
-            plot_safmed_scores,
+            get_safmed_plot,
             import_csv
         ])
         .run(tauri::generate_context!())
@@ -130,7 +130,7 @@ fn add_safmed_score(
 }
 
 #[tauri::command]
-fn plot_safmed_scores(
+fn get_safmed_plot(
     student_id: &str,
     service: State<Arc<SafmedScoreService>>,
 ) -> Result<String, String> {

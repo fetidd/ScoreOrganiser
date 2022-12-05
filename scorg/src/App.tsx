@@ -71,7 +71,7 @@ function App() {
         <StudentList students={students} selected={selected} select={setSelected} getStudents={getStudentsFromTauri} addStudent={addStudentToTauri} deleteStudent={deleteStudentFromTauri} editStudent={editStudentInTauri} applyFilter={applyFilter} />
       </div>
       <div id="score-tab-area">
-        <ScoreTabs />
+        <ScoreTabs selected={selected}/>
       </div>
       {snackbarCtx.isDisplayed && <SnackBar />}
     </div>
