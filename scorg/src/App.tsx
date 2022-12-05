@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 import StudentList from "./StudentList/StudentList";
@@ -17,7 +17,6 @@ function App() {
   const getStudentsFromTauri = async () => {
     try {
       let students: Student[] = await invoke("all_students")
-      setStudents(students)
       setStudentCache(students)
     } catch (error) {
       snackbarCtx.error(`failed to get students: ${error!.toString()}`)
@@ -26,22 +25,22 @@ function App() {
 
   const addStudentToTauri = async (firstNames: string, lastName: string, dateOfBirth: string) => {
     try {
-        await invoke("add_student", { firstNames, lastName, dateOfBirth })
-        snackbarCtx.success(`added ${firstNames} ${lastName}`)
-        getStudentsFromTauri()
+      await invoke("add_student", { firstNames, lastName, dateOfBirth })
+      snackbarCtx.success(`added ${firstNames} ${lastName}`)
+      getStudentsFromTauri()
     } catch (error) {
-        snackbarCtx.error(`failed to add student: ${error!.toString()}`)
+      snackbarCtx.error(`failed to add student: ${error!.toString()}`)
     }
-}
+  }
 
   const deleteStudentFromTauri = async (id: string) => {
     try {
-        await invoke("delete_student", { id })
-        let deleted = students.find(st => st.id === id)!
-        snackbarCtx.success(`deleted ${deleted.first_names} ${deleted.last_name}`)
-        getStudentsFromTauri()
+      await invoke("delete_student", { id })
+      let deleted = students.find(st => st.id === id)!
+      snackbarCtx.success(`deleted ${deleted.first_names} ${deleted.last_name}`)
+      getStudentsFromTauri()
     } catch (error) {
-        snackbarCtx.error(`failed to delete student: ${error!.toString()}`)
+      snackbarCtx.error(`failed to delete student: ${error!.toString()}`)
     }
   }
 
@@ -50,11 +49,11 @@ function App() {
     let last_name = splitName.pop()
     let first_names = splitName.join(" ")
     try {
-        await invoke("edit_student", { update: { id: id, first_names: first_names, last_name: last_name, date_of_birth: editDob } })
-        snackbarCtx.success("edited student")
-        getStudentsFromTauri()
+      await invoke("edit_student", { update: { id: id, first_names: first_names, last_name: last_name, date_of_birth: editDob } })
+      snackbarCtx.success("edited student")
+      getStudentsFromTauri()
     } catch (error) {
-        snackbarCtx.error(`failed to edit student: ${error!.toString()}`)
+      snackbarCtx.error(`failed to edit student: ${error!.toString()}`)
     }
   }
 
@@ -63,6 +62,8 @@ function App() {
     setStudents(studentCache.filter(st => `${st.first_names} ${st.last_name}`.toLowerCase().includes(filter.toLowerCase())))
     setCurrFilter(filter)
   }
+
+  useEffect(() => applyFilter(currFilter), [studentCache])
 
   return (
     <div className="container">
