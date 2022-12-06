@@ -35,6 +35,7 @@ export default function AddStudentDialog({ showDialog, addStudent, closeModals }
     return (
         <div id="add-student-dialog" className="dialog" style={{ display: showDialog ? "flex" : "none" }}>
             <div className="topbar">
+                <span><em>Add student</em></span>
                 <i className="fa fa-close" onClick={() => {
                     clearInputs()
                     closeModals()

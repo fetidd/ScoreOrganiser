@@ -24,10 +24,23 @@ export default function EditStudentDialog({showDialog, editStudent, closeModals,
 
     return (
         <div id="edit-student-dialog" className="dialog" style={{display: showDialog?"flex":"none"}}>
+            <div className="topbar">
+                <span><em>Edit student</em></span>
+                <i className="fa fa-close" onClick={() => {
+                    clearInputs()
+                    closeModals()
+                }} />
+            </div>
             <div className="row">
-                <input type="text" ref={nameInput} />
+                <label>Name</label>
+                <input id="name-input" type="text" ref={nameInput} />
+            </div>
+            <div className="row">
+                <label>Date of birth</label>
                 <input type="date" ref={dobInput} />
-                <button onClick={handleEdit}>Save</button>
+            </div>
+            <div className="row">
+                <button className="button wide" onClick={handleEdit}>Save</button>
             </div>
         </div>
     )

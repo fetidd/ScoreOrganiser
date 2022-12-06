@@ -55,10 +55,12 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
         "resizable": true,
-        "title": "scorg",
-        "width": 800
+        "title": "Score Organiser v1.0",
+        "height": 850,
+        "minHeight": 850,
+        "width": 1230,
+        "minWidth": 1230
       }
     ]
   }

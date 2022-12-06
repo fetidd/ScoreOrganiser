@@ -19,7 +19,10 @@ input {
   font-size: 1.2em;
 }
 input[type=date] {
-  height: 30px;
+  height: 32px;
+}
+input[type=number] {
+  width: 40px;
 }
 
 .container {
@@ -31,7 +34,6 @@ input[type=date] {
   grid-template-columns: 300px 1fr;
   grid-template-rows: 1fr;
   grid-template-areas: "student-list-area score-tabs-area";
-  padding: 5px;
   gap: 30px;
 }
 @media only screen and (max-width: 600px) {
@@ -43,7 +45,7 @@ input[type=date] {
 
 .button {
   margin: 0;
-  min-height: 40px;
+  min-height: 36px;
   border: none;
   appearance: none;
   background-color: #eee;
@@ -97,6 +99,10 @@ input[type=date] {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 5px;
+}
+.row.center {
+  justify-content: center;
 }
 
 .modal {
@@ -122,13 +128,19 @@ input[type=date] {
   border-radius: 5px;
   padding: 15px;
   z-index: 10;
-  max-width: 300px;
+  max-width: 350px;
   min-width: 300px;
 }
 .dialog .topbar {
   display: flex;
-  justify-content: end;
+  justify-content: space-between;
   align-items: center;
+}
+.dialog .topbar span {
+  position: relative;
+  top: -10px;
+  left: 0px;
+  font-size: 0.7em;
 }
 .dialog .fa-close {
   position: relative;
@@ -185,6 +197,9 @@ input[type=date] {
   background-color: #28262b;
   color: #eee;
 }
+#StudentList #csv-drop-area {
+  background-color: red;
+}
 
 #ScoreTabs {
   display: grid;
@@ -218,9 +233,8 @@ input[type=date] {
   background-color: #28262b;
   color: white;
 }
-#ScoreTabs .content {
+#ScoreTabs #safmed-content {
   grid-area: content;
-  background-color: cyan;
 }
 
 /*# sourceMappingURL=App.css.map */

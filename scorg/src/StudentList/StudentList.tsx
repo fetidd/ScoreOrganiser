@@ -54,12 +54,10 @@ export default function StudentList({ students, selected, select, getStudents, a
     applyFilter(filter)
   }
 
-  function handleFileChange(e: React.FormEvent) {
-    const files = (e.target as HTMLInputElement).files
-    if (files !== null && files[0] !== null) {
-      setFile(files[0])
-    }
-  }
+  // function handleFileDrop(event: React.DragEvent) {
+  //   setFile(event.dataTransfer.files[0])
+  //   snackbarCtx.info(file)
+  // }
 
   const rows = () => {
     let rows = students.map(student => {
@@ -100,7 +98,8 @@ export default function StudentList({ students, selected, select, getStudents, a
             {rows()}
           </ul>
         </div>
-        <div id="list-bottom-bar-area"></div>
+        <div id="list-bottom-bar-area">
+        </div>
       </div>
       <div className="modal" onClick={() => closeModals()} style={{ display: modal ? "block" : "none", }}></div>
       <AddStudentDialog showDialog={showAddStudent} addStudent={addStudent} closeModals={closeModals} />

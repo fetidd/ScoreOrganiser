@@ -47,8 +47,8 @@ fn main() {
             add_student,
             delete_student,
             edit_student,
-            add_safmed_score,
-            get_safmed_plot,
+            add_safmeds_score,
+            get_safmeds_plot,
             import_csv
         ])
         .run(tauri::generate_context!())
@@ -112,7 +112,7 @@ fn edit_student(update: Student, service: State<Arc<StudentService>>) -> Result<
 
 // SCORE COMMANDS
 #[tauri::command]
-fn add_safmed_score(
+fn add_safmeds_score(
     id: String,
     date: String,
     correct: i32,
@@ -130,7 +130,7 @@ fn add_safmed_score(
 }
 
 #[tauri::command]
-fn get_safmed_plot(
+fn get_safmeds_plot(
     student_id: &str,
     service: State<Arc<SafmedScoreService>>,
 ) -> Result<String, String> {

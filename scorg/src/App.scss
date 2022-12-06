@@ -22,7 +22,11 @@ input {
     font-size: 1.2em;
 
     &[type="date"] {
-        height: 30px;
+        height: 32px;
+    }
+
+    &[type="number"] {
+        width: 40px;
     }
 }
 
@@ -37,7 +41,6 @@ input {
     grid-template-columns: 300px 1fr;
     grid-template-rows: 1fr;
     grid-template-areas: "student-list-area score-tabs-area";
-    padding: 5px;
     gap: 30px;
 
     @media only screen and (max-width: 600px) {
@@ -48,7 +51,7 @@ input {
 
 .button {
     margin: 0;
-    min-height: 40px;
+    min-height: 36px;
     border: none;
     appearance: none;
     background-color: #eee;
@@ -107,6 +110,11 @@ input {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 5px;
+
+    &.center {
+        justify-content: center;
+    }
 }
 
 .modal { 
@@ -132,13 +140,20 @@ input {
     border-radius: 5px;
     padding: 15px; 
     z-index: 10; 
-    max-width: 300px; 
+    max-width: 350px; 
     min-width: 300px;
 
     .topbar {
         display: flex;
-        justify-content: end;
+        justify-content: space-between;
         align-items: center;
+
+        span {
+            position: relative;
+            top: -10px;
+            left: 0px;
+            font-size: 0.7em;
+        }
     }
 
     .fa-close {
@@ -202,6 +217,10 @@ input {
             color: #eee;
         }
     }
+
+    #csv-drop-area {
+        background-color: red;
+    }
 }
 
 #ScoreTabs {
@@ -240,9 +259,7 @@ input {
         }
     }
 
-    .content {
+    #safmed-content {
         grid-area: content;
-        background-color: cyan;
     }
-
 }
