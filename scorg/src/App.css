@@ -235,6 +235,7 @@ input[type=number] {
 }
 #ScoreTabs #safmed-content {
   grid-area: content;
+  padding: 10px;
 }
 
 /*# sourceMappingURL=App.css.map */

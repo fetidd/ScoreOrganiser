@@ -28,7 +28,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.fetidd.scorg",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -59,8 +59,8 @@
         "title": "Score Organiser v1.0",
         "height": 850,
         "minHeight": 850,
-        "width": 1230,
-        "minWidth": 1230
+        "width": 1300,
+        "minWidth": 1300
       }
     ]
   }

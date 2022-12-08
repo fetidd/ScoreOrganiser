@@ -3,10 +3,11 @@ import { useContext, useEffect, useRef, useState } from "react"
 import SnackbarContext from "../snackbar-context"
 import SafmedContent from "./SafmedContent"
 import moment from "moment"
+import { Score } from "./Score"
 
 export default function ScoreTabs({ selected }: Props) {
   const [currentTab, setCurrentTab] = useState("safmeds")
-  const [plot, setPlot] = useState("" as string | unknown) // this is dumb
+  const [scores, setScores] = useState([] as Score[])
   const correctInput = useRef<HTMLInputElement>(null)
   const incorrectInput = useRef<HTMLInputElement>(null)
   const [currentDate, setCurrentDate] = useState(moment().format("YYYY-MM-DD"))
@@ -16,10 +17,10 @@ export default function ScoreTabs({ selected }: Props) {
     setCurrentTab(tab)
   }
 
-  function getPlot() {
-    invoke(`get_${currentTab}_plot`, { studentId: selected }).then(pl => {
+  function getScores() {
+    invoke(`get_${currentTab}_scores`, { studentId: selected }).then((sc) => {
       // snack.success(`got plot`)
-      setPlot(pl)
+      setScores(sc as Score[])
     }).catch(e => snack.error(e.toString()))
   }
 
@@ -28,14 +29,14 @@ export default function ScoreTabs({ selected }: Props) {
     let incorrect = Number.parseInt(incorrectInput.current!.value)
     invoke("add_safmeds_score", {id: selected, date: currentDate, correct, incorrect}).then(() => {
       snack.success("added safmeds score"); 
-      getPlot();
+      getScores();
       correctInput.current!.value = ""
       incorrectInput.current!.value = ""
     }).catch(e => snack.error(e.toString()))
   }
 
   useEffect(() => {
-    getPlot()
+    getScores()
   }, [selected, currentTab])
 
 
@@ -47,7 +48,7 @@ export default function ScoreTabs({ selected }: Props) {
         <div className={currentTab === "reading" ? "tab selected" : "tab"} onClick={() => switchTab("reading")}><span>Reading</span></div> */}
       </div>
       <div id="content">
-        {currentTab === "safmeds" && <SafmedContent  plot={plot as string} />}
+        {currentTab === "safmeds" && <SafmedContent scores={scores}/>}
         {/* {currentTab === "writing" && <span>WritingContent</span>}
         {currentTab === "reading" && <span>ReadingContent</span>} */}
         <div id="controls" className="row center">

@@ -48,7 +48,7 @@ fn main() {
             delete_student,
             edit_student,
             add_safmeds_score,
-            get_safmeds_plot,
+            get_safmeds_scores,
             import_csv
         ])
         .run(tauri::generate_context!())
@@ -130,14 +130,11 @@ fn add_safmeds_score(
 }
 
 #[tauri::command]
-fn get_safmeds_plot(
+fn get_safmeds_scores(
     student_id: &str,
     service: State<Arc<SafmedScoreService>>,
-) -> Result<String, String> {
-    let plotter = SafmedPlotter::new(Arc::clone(&service));
-    let mut buffer = String::new();
-    plotter.plot(student_id, &mut buffer);
-    Ok(buffer)
+) -> Result<Vec<SafmedScore>, String> {
+    service.get_safmed_scores(&student_id).or_else(|e| Err(e.to_string()))
 }
 
 #[tauri::command]
