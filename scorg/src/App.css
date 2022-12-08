@@ -6,6 +6,11 @@ body, html {
   font-family: "Roboto", sans-serif;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  display: none;
+}
+
 ul {
   list-style-type: none;
   margin: 0;
